@@ -1,0 +1,2903 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVA____FATAL.exe</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/galmuri.css">
+<style>
+:root{
+  --bg:        #060504;
+  --panel:     #0b0a08;
+  --panel-2:   #100e0b;
+  --orange:    #ff2323;
+  --orange-2:  #ff6b6b;
+  --orange-dim:#a30f0f;
+  --line:      #7a1212;
+  --text:      #ece6dd;
+  --text-dim:  #93897c;
+  --font-pixel: 'Galmuri11', monospace;
+  --font-mono:  'Galmuri9', monospace;
+}
+
+*{ box-sizing:border-box; }
+
+html,body{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:14px;
+  -webkit-font-smoothing:none;
+}
+
+body{
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:32px 16px;
+  min-height:100%;
+  background-image:
+    radial-gradient(ellipse at 50% 0%, #1a0605 0%, var(--bg) 60%);
+}
+
+img{ -webkit-user-drag:none; user-select:none; }
+
+/* ---------- window ---------- */
+.window{
+  width:100%;
+  max-width:1160px;
+  border:2px solid var(--orange);
+  background:var(--panel);
+  box-shadow:0 0 0 1px #000, 0 0 40px -8px rgba(255,35,35,.35);
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  z-index:2;
+}
+
+/* ---------- titlebar ---------- */
+.titlebar{
+  background:repeating-linear-gradient(
+    90deg,
+    var(--orange) 0 6px,
+    #d81414 6px 12px
+  );
+  color:#1a0d00;
+  font-family:var(--font-pixel);
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 10px;
+  font-size:13px;
+  letter-spacing:.5px;
+}
+.titlebar-path{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.blink{ animation:blink 1.1s steps(1) infinite; }
+@keyframes blink{ 50%{ opacity:0; } }
+
+.titlebar-buttons{ display:flex; gap:6px; flex-shrink:0; }
+.tbtn{
+  font-family:var(--font-mono);
+  font-size:11px;
+  background:#1a0d00;
+  color:var(--orange-2);
+  border:1px solid #1a0d00;
+  padding:3px 8px;
+  cursor:pointer;
+}
+.tbtn:hover{ background:#000; color:#fff; }
+.tbtn-accent.off{ color:#666; }
+
+/* ---------- tabs ---------- */
+.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  border-bottom:1px solid var(--orange);
+  background:var(--panel-2);
+}
+.tab{
+  font-family:var(--font-mono);
+  font-size:13px;
+  background:transparent;
+  color:var(--text-dim);
+  border:none;
+  border-right:1px solid var(--line);
+  padding:10px 16px;
+  cursor:pointer;
+}
+.tab:hover{ color:var(--orange-2); }
+.tab.active{
+  background:var(--orange);
+  color:#1a0d00;
+  font-weight:700;
+}
+
+/* ---------- content ---------- */
+.content{
+  padding:26px 30px 20px;
+  height:560px;
+  overflow-y:auto;
+}
+.content::-webkit-scrollbar{ width:10px; }
+.content::-webkit-scrollbar-track{ background:var(--panel-2); }
+.content::-webkit-scrollbar-thumb{ background:var(--orange-dim); }
+
+.pane{ display:none; }
+.pane.active{ display:block; animation:fadein .15s ease; }
+@keyframes fadein{ from{ opacity:0; } to{ opacity:1; } }
+
+.block{ margin-bottom:30px; }
+.block-title{
+  font-family:var(--font-pixel);
+  color:var(--orange);
+  font-size:15px;
+  margin:0 0 6px;
+  letter-spacing:1px;
+}
+.block-title.small{ font-size:13px; }
+.rule{ border-top:1px solid var(--line); margin-bottom:14px; }
+
+p{ margin:0 0 10px; line-height:1.75; color:var(--text); }
+p.spaced{ margin-top:14px; }
+p.dim{ color:var(--text-dim); }
+.accent{ color:var(--orange); }
+.mini-bar{ color:var(--orange); letter-spacing:2px; }
+.hidden{ display:none !important; }
+
+/* ---------- admin-only ---------- */
+.admin-only{ display:none; }
+
+/* ---------- editable title ---------- */
+.titlebar-path[contenteditable="true"]{ outline:none; cursor:text; }
+.titlebar-path[contenteditable="true"]:hover,
+.titlebar-path[contenteditable="true"]:focus{
+  outline:1px dashed var(--orange-2);
+  outline-offset:2px;
+}
+
+/* ---------- small buttons / inputs (shared) ---------- */
+.mini-btn{
+  font-family:var(--font-mono);
+  font-size:11px;
+  padding:4px 10px;
+  border:1px solid var(--orange-dim);
+  background:#1a0d00;
+  color:var(--orange-2);
+  cursor:pointer;
+  white-space:nowrap;
+}
+.mini-btn:hover{ background:#000; color:#fff; }
+.mini-btn.primary{ background:var(--orange); color:#1a0d00; border-color:var(--orange); font-weight:700; }
+.mini-btn.primary:hover{ background:var(--orange-2); }
+.mini-btn.danger{ color:#ff6b6b; border-color:#7a1212; }
+.mini-btn.danger:hover{ background:#3a0a0a; color:#fff; }
+.mini-input{
+  font-family:var(--font-mono);
+  font-size:12px;
+  background:#1a0d00;
+  border:1px solid var(--orange-dim);
+  color:var(--text);
+  padding:6px 8px;
+}
+.mini-input:focus{ outline:none; border-color:var(--orange); }
+
+/* ---------- home ---------- */
+.image-slot{ position:relative; width:100%; }
+.img-change-btn{
+  position:absolute; top:8px; left:8px; z-index:3;
+  font-family:var(--font-mono); font-size:11px;
+  background:#1a0d00; color:var(--orange-2);
+  border:1px solid var(--orange-dim);
+  padding:5px 12px; cursor:pointer;
+}
+.img-change-btn:hover{ background:#000; color:#fff; }
+
+.image-viewport{
+  position:relative;
+  width:100%;
+  height:440px;
+  border:1px dashed var(--orange-dim);
+  background:var(--panel-2);
+  overflow:hidden;
+  cursor:grab;
+  user-select:none;
+}
+.image-viewport.has-image{ border-style:solid; }
+.image-viewport:active{ cursor:grabbing; }
+
+#homeImage{
+  position:absolute; top:0; left:0;
+  transform-origin:0 0;
+  max-width:none;
+  pointer-events:none;
+  display:none;
+}
+
+.image-placeholder{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:8px; color:var(--text-dim);
+  cursor:pointer; text-align:center; padding:20px;
+}
+.image-placeholder .ph-main{ color:var(--orange-2); font-size:14px; }
+.image-placeholder .ph-sub{ font-size:11px; }
+
+.dday-box{ border:1px solid var(--orange-dim); background:var(--panel-2); padding:10px 16px; text-align:right; min-width:180px; }
+.dday-box.has-target .dday-value{ font-size:24px; }
+.dday-label{ font-size:11px; color:var(--text-dim); letter-spacing:1px; }
+.dday-value{ font-family:var(--font-pixel); color:var(--orange); font-size:20px; margin-top:2px; }
+.dday-edit-row{ margin-top:8px; display:flex; gap:6px; justify-content:flex-end; }
+
+/* ---------- log ---------- */
+.log-toolbar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.log-cats{ display:flex; flex-wrap:wrap; gap:6px; }
+.cat-chip{
+  font-family:var(--font-mono); font-size:11px; padding:4px 10px;
+  border:1px solid var(--line); background:transparent; color:var(--text-dim);
+  cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+}
+.cat-chip.active{ background:var(--orange); color:#1a0d00; border-color:var(--orange); font-weight:700; }
+.log-right-tools{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.log-search-row{ margin-bottom:14px; }
+.log-search-row .mini-input{ width:100%; }
+
+.log-row-list{ display:flex; flex-direction:column; }
+.log-row{
+  display:flex; align-items:center; gap:12px; padding:10px 4px;
+  border-bottom:1px solid var(--line); cursor:pointer;
+}
+.log-row:hover{ background:var(--panel-2); }
+.log-row-thumb{
+  width:52px; height:52px; flex-shrink:0; border:1px solid var(--line);
+  background:var(--panel-2); overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text-dim); font-size:10px;
+}
+.log-row-thumb img{ width:100%; height:100%; object-fit:cover; }
+.log-row.is-secret .log-row-thumb{ filter:blur(4px); }
+.log-row-type{
+  font-size:10px; color:var(--orange); border:1px solid var(--orange-dim);
+  padding:2px 6px; white-space:nowrap; flex-shrink:0;
+}
+.log-row-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.log-row-title{ color:var(--text); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.log-row-title.secret{ color:var(--text-dim); font-weight:400; }
+.log-row-meta{ font-size:11px; color:var(--text-dim); display:flex; gap:8px; }
+.log-row-actions{ display:flex; gap:6px; flex-shrink:0; }
+
+/* ---------- rich text editor (log write form) ---------- */
+.rte-toolbar{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-bottom:6px; }
+.rte-btn{ min-width:28px; text-align:center; }
+.rte-color-label{ display:inline-flex; align-items:center; }
+.rte-color-input{ width:28px; height:28px; padding:0; border:1px solid var(--orange-dim); background:#1a0d00; cursor:pointer; }
+.rte-editor{
+  min-height:140px; max-height:300px; overflow-y:auto;
+  background:#1a0d00; border:1px solid var(--orange-dim); color:var(--text);
+  padding:10px; font-family:var(--font-mono); font-size:13px; line-height:1.6; margin-bottom:14px;
+}
+.rte-editor:focus{ outline:none; border-color:var(--orange); }
+.rte-html-textarea{ display:none; }
+.log-secret-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:14px; font-size:12px; }
+
+/* ---------- category(tab) management modal ---------- */
+.cat-manage-row{ display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+.cat-manage-row .mini-input{ flex:1; }
+.cat-manage-add-row{ display:flex; gap:6px; margin-top:10px; }
+.cat-manage-add-row .mini-input{ flex:1; }
+
+/* ---------- log detail modal ---------- */
+.log-detail-images{ display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+.log-detail-images img{ width:100%; height:auto; display:block; border:1px solid var(--line); }
+.log-detail-title{ font-family:var(--font-pixel); color:var(--orange); font-size:16px; margin:0 0 10px; letter-spacing:.5px; }
+.log-detail-meta{ display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap; font-size:12px; color:var(--text-dim); }
+.log-detail-body{ line-height:1.75; margin-bottom:18px; word-break:break-word; }
+.log-detail-share{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+
+.log-comments{ margin-top:0; padding-top:10px; border-top:1px dashed var(--line); display:flex; flex-direction:column; gap:6px; }
+.comment-item{ display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; font-size:12px; color:var(--text-dim); }
+.comment-author{ color:var(--orange-2); font-weight:700; }
+.comment-text{ color:var(--text); flex:1 1 auto; }
+.comment-date{ font-size:11px; }
+.comment-form{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-top:6px; }
+.comment-form input[data-role="comment-author"]{ flex:0 0 100px; }
+.comment-form input[data-role="comment-text"]{ flex:1 1 200px; }
+.comment-secret-label{ font-size:11px; color:var(--text-dim); display:flex; align-items:center; gap:4px; white-space:nowrap; }
+
+/* ---------- memo ---------- */
+.memo-toolbar{ margin-bottom:14px; }
+.memo-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:14px; }
+.memo-card{
+  position:relative;
+  border:1px solid var(--line); background:var(--panel-2); padding:12px;
+  display:flex; flex-direction:column; gap:8px;
+  height:170px;
+}
+.memo-tag{ color:var(--orange); font-size:11px; flex-shrink:0; }
+.memo-body{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  scrollbar-width:none;      /* firefox */
+  -ms-overflow-style:none;   /* legacy edge/ie */
+  margin:0; line-height:1.6; word-break:break-word; white-space:pre-wrap;
+}
+.memo-body::-webkit-scrollbar{ display:none; }  /* chrome/safari */
+.memo-date{ color:var(--text-dim); font-size:11px; align-self:flex-end; flex-shrink:0; }
+.memo-del{
+  position:absolute; top:6px; right:6px; background:transparent; border:none;
+  color:var(--text-dim); font-size:15px; cursor:pointer; line-height:1;
+}
+.memo-del:hover{ color:#ff6b6b; }
+
+/* ---------- story ---------- */
+.story-line-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.story-line-tabs{ display:flex; flex-wrap:wrap; gap:6px; }
+.story-entry-toolbar{ display:flex; gap:8px; margin-bottom:20px; }
+
+.story-timeline{ position:relative; padding:6px 0; }
+.story-timeline::before{
+  content:''; position:absolute; left:50%; top:0; bottom:0; width:2px;
+  background:var(--line); transform:translateX(-50%);
+}
+.story-row{
+  position:relative; z-index:1;
+  display:grid; grid-template-columns:1fr 40px 1fr;
+  align-items:start; margin-bottom:26px;
+}
+.story-dot{
+  grid-column:2; justify-self:center; margin-top:10px;
+  width:12px; height:12px; border-radius:50%;
+  background:var(--orange); border:2px solid var(--panel); flex-shrink:0;
+}
+.story-entry-box{
+  position:relative;
+  border:1px solid var(--line); background:var(--panel-2);
+  padding:12px 14px; width:100%; box-sizing:border-box;
+}
+.story-row.left  .story-entry-box{ grid-column:1; justify-self:end;   text-align:right; }
+.story-row.right .story-entry-box{ grid-column:3; justify-self:start; text-align:left; }
+.story-entry-date{ color:var(--orange-dim); font-size:11px; }
+.story-entry-title{ font-family:var(--font-pixel); color:var(--orange); font-size:14px; margin:4px 0 8px; letter-spacing:.5px; }
+.story-entry-content{ font-size:13px; line-height:1.65; color:var(--text); white-space:pre-wrap; word-break:break-word; }
+.story-entry-images{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.story-row.left  .story-entry-images{ justify-content:flex-end; }
+.story-row.right .story-entry-images{ justify-content:flex-start; }
+.story-entry-images img{ width:64px; height:64px; object-fit:cover; border:1px solid var(--line); }
+.story-entry-actions{ display:flex; gap:6px; margin-top:10px; }
+.story-row.left  .story-entry-actions{ justify-content:flex-end; }
+.story-row.right .story-entry-actions{ justify-content:flex-start; }
+.story-empty{ text-align:center; padding:30px 0; }
+
+@media (max-width:640px){
+  .story-timeline::before{ left:16px; }
+  .story-row{ grid-template-columns:32px 1fr; }
+  .story-dot{ grid-column:1; justify-self:center; }
+  .story-row.left  .story-entry-box,
+  .story-row.right .story-entry-box{
+    grid-column:2; justify-self:stretch; text-align:left;
+  }
+  .story-row.left  .story-entry-images,
+  .story-row.right .story-entry-images,
+  .story-row.left  .story-entry-actions,
+  .story-row.right .story-entry-actions{ justify-content:flex-start; }
+}
+
+/* ---------- profile ---------- */
+.profile-cards{ display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
+.profile-card{
+  flex:1 1 320px; min-width:280px;
+  border:1px solid var(--line); background:var(--panel-2);
+  padding:16px; transition:background .15s ease;
+}
+.profile-card-head{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  flex-wrap:wrap; margin-bottom:16px; padding-bottom:10px;
+  border-bottom:1px solid var(--orange-dim);
+}
+.profile-card-name{
+  font-family:var(--font-pixel); color:var(--orange); font-size:16px; letter-spacing:.5px;
+}
+.profile-card-name.profile-editable[contenteditable="true"]{
+  outline:1px dashed var(--orange-2); outline-offset:3px; cursor:text;
+}
+.profile-bg-label{ display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--text-dim); }
+.profile-bg-picker{ width:26px; height:22px; padding:0; border:1px solid var(--orange-dim); background:none; cursor:pointer; }
+
+.profile-section{ margin-bottom:24px; }
+.profile-section:last-child{ margin-bottom:0; }
+.profile-section-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.profile-section-title{ font-family:var(--font-pixel); color:var(--orange); font-size:12px; letter-spacing:1px; }
+.profile-section-order-btns{ display:flex; gap:4px; }
+.profile-section-order-btns .mini-btn{ padding:2px 8px; font-size:10px; }
+
+.profile-viewport{ height:220px; }
+
+.profile-quote{
+  font-style:italic; color:var(--orange-2); border-left:2px solid var(--orange-dim);
+  padding:2px 0 2px 12px; line-height:1.7; min-height:1.4em;
+}
+.profile-freetext{ line-height:1.7; white-space:pre-wrap; word-break:break-word; min-height:1.4em; }
+.profile-editable[contenteditable="true"]{ outline:1px dashed var(--orange-dim); outline-offset:4px; cursor:text; }
+
+.profile-table-wrap{ position:relative; }
+.profile-table{ width:100%; border-collapse:collapse; table-layout:fixed; }
+.profile-table td{ padding:6px 8px 6px 0; border-bottom:1px dashed var(--line); vertical-align:top; word-break:break-word; }
+.profile-table td.label-cell{ color:var(--orange); font-size:12px; }
+.profile-table td[contenteditable="true"]{ outline:1px dashed var(--orange-dim); outline-offset:2px; cursor:text; }
+.profile-table-row-del{ color:#ff6b6b; cursor:pointer; font-size:13px; }
+.profile-table-resizer{
+  position:absolute; top:0; bottom:0; width:6px; margin-left:-3px;
+  cursor:col-resize; background:transparent;
+}
+.profile-table-resizer:hover{ background:var(--orange-dim); opacity:.5; }
+
+.profile-tags{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.profile-tag{
+  display:inline-flex; align-items:center; gap:6px; font-size:11px; padding:4px 8px;
+  border:1px solid var(--line); color:var(--text-dim);
+}
+.profile-tag button{ background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:12px; padding:0; line-height:1; }
+.profile-tag button:hover{ color:#ff6b6b; }
+.profile-tag-add-row{ display:flex; gap:6px; }
+.profile-tag-add-row .mini-input{ flex:1; }
+
+/* ---------- gallery ---------- */
+.gallery-toolbar{ margin-bottom:14px; }
+.gallery-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; }
+.gallery-item{
+  position:relative; aspect-ratio:1/1; border:1px solid var(--line); background:var(--panel-2);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text-dim); font-size:12px; overflow:hidden;
+  cursor:pointer;
+}
+.gallery-item:hover{ border-color:var(--orange); color:var(--orange-2); }
+.gallery-item img{ width:100%; height:100%; object-fit:cover; }
+.gallery-del{
+  position:absolute; top:4px; right:4px; background:rgba(0,0,0,.65);
+  border:1px solid var(--orange-dim); color:#ff6b6b; font-size:13px;
+  width:20px; height:20px; line-height:1; cursor:pointer;
+  z-index:2;
+}
+.gallery-del:hover{ background:#000; }
+.gallery-badge{
+  position:absolute; left:4px; bottom:4px; z-index:2;
+  font-family:var(--font-pixel); font-size:9px; letter-spacing:.5px;
+  background:rgba(0,0,0,.65); color:var(--orange-2);
+  border:1px solid var(--orange-dim); padding:2px 5px;
+  pointer-events:none;
+}
+.gallery-add-tile{
+  position:relative; aspect-ratio:1/1; border:1px dashed var(--orange-dim); background:transparent;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  color:var(--orange-2); font-size:12px; cursor:pointer;
+}
+.gallery-add-tile:hover{ border-color:var(--orange); background:var(--panel-2); color:#fff; }
+.gallery-add-tile .plus{ font-family:var(--font-pixel); font-size:22px; line-height:1; }
+
+/* ---------- lightbox ---------- */
+.lightbox-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.9);
+  display:flex; align-items:center; justify-content:center;
+  z-index:200; padding:28px; cursor:zoom-out;
+}
+.lightbox-overlay.hidden{ display:none; }
+.lightbox-overlay img{
+  max-width:100%; max-height:100%; object-fit:contain;
+  box-shadow:0 0 40px -8px rgba(255,35,35,.4);
+  cursor:default; border:1px solid var(--orange-dim);
+}
+.lightbox-close{
+  position:absolute; top:18px; right:18px;
+  font-family:var(--font-mono); font-size:15px;
+  background:#1a0d00; color:var(--orange-2);
+  border:1px solid var(--orange-dim);
+  width:34px; height:34px; cursor:pointer;
+}
+.lightbox-close:hover{ background:#000; color:#fff; }
+
+/* ---------- toast ---------- */
+.toast-container{
+  position:fixed; bottom:20px; right:20px; z-index:300;
+  display:flex; flex-direction:column; gap:8px;
+  max-width:320px; width:calc(100% - 40px);
+}
+.toast{
+  font-family:var(--font-mono); font-size:12px; line-height:1.5;
+  padding:10px 14px; border:1px solid var(--orange-dim);
+  background:#1a0d00; color:var(--text);
+  box-shadow:0 0 20px -4px rgba(255,35,35,.4);
+  animation:toast-in .18s ease;
+}
+.toast.success{ border-color:var(--orange); color:var(--orange-2); }
+.toast.error{ border-color:#7a1212; color:#ff6b6b; }
+.toast.hide{ animation:toast-out .18s ease forwards; }
+@keyframes toast-in{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+@keyframes toast-out{ to{ opacity:0; transform:translateY(6px); } }
+
+/* ---------- settings ---------- */
+.pw-form{ display:flex; flex-direction:column; gap:10px; max-width:320px; }
+
+/* ---------- modal ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.65);
+  display:flex; align-items:center; justify-content:center;
+  z-index:100; padding:16px;
+}
+.modal-overlay.hidden{ display:none; }
+.modal-box{
+  width:min(440px, 100%); background:var(--panel); border:2px solid var(--orange);
+  padding:22px; box-shadow:0 0 40px -8px rgba(255,35,35,.4);
+  max-height:86vh; overflow-y:auto;
+}
+.modal-box.modal-box-wide{ width:min(680px, 100%); }
+.modal-title{ font-family:var(--font-pixel); color:var(--orange); font-size:14px; margin:0 0 14px; letter-spacing:1px; }
+.modal-hint{ font-size:12px; color:var(--text-dim); margin:0 0 12px; line-height:1.6; }
+.modal-input{
+  width:100%; background:#1a0d00; border:1px solid var(--orange-dim); color:var(--text);
+  padding:9px 10px; font-family:var(--font-mono); font-size:13px; margin-bottom:14px;
+}
+.modal-input:focus{ outline:none; border-color:var(--orange); }
+.modal-textarea{ resize:vertical; min-height:80px; font-family:var(--font-mono); }
+select.modal-input{ cursor:pointer; }
+.modal-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.modal-btn{
+  font-family:var(--font-mono); font-size:12px; padding:7px 14px;
+  border:1px solid var(--orange-dim); background:#1a0d00; color:var(--orange-2); cursor:pointer;
+}
+.modal-btn:hover{ background:#000; color:#fff; }
+.modal-btn.primary{ background:var(--orange); color:#1a0d00; border-color:var(--orange); font-weight:700; }
+.modal-btn.primary:hover{ background:var(--orange-2); }
+.pw-input-row{ display:flex; gap:6px; align-items:center; margin-bottom:10px; }
+.pw-input-row .modal-input{ margin-bottom:0; flex:1; }
+.eye-btn{
+  background:#1a0d00; border:1px solid var(--orange-dim); color:var(--orange-2);
+  padding:6px 8px; cursor:pointer; display:flex; align-items:center;
+}
+.eye-btn:hover{ background:#000; color:#fff; }
+
+/* ---------- statusbar ---------- */
+.statusbar{
+  border-top:1px solid var(--orange); background:var(--panel-2); padding:8px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:12px; color:var(--text-dim); flex-wrap:wrap; gap:8px;
+}
+.bgm{ color:var(--orange); cursor:pointer; }
+.sep{ margin:0 8px; color:var(--line); }
+.current-tab{ color:var(--orange); font-family:var(--font-pixel); }
+.admin-toggle{ cursor:pointer; color:var(--orange); }
+.admin-toggle:hover{ text-decoration:underline; }
+
+/* ---------- CRT effect ---------- */
+.crt-scanlines,.crt-vignette,.crt-flicker{ position:fixed; inset:0; pointer-events:none; z-index:5; }
+.crt-scanlines{ background:repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px); mix-blend-mode:multiply; }
+.crt-vignette{ background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); }
+.crt-flicker{ background:rgba(255,40,40,.02); animation:flicker 6s infinite; }
+@keyframes flicker{ 0%,96%,100%{ opacity:1; } 97%{ opacity:.85; } 98%{ opacity:1; } }
+body.crt-off .crt-scanlines, body.crt-off .crt-vignette, body.crt-off .crt-flicker{ display:none; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 640px){
+  body{ padding:0; }
+  .window{ max-width:100%; border-width:0 0 2px 0; min-height:100vh; }
+  .content{ height:auto; min-height:70vh; padding:18px; }
+  .titlebar-path{ font-size:11px; }
+  .tab{ font-size:11px; padding:9px 10px; }
+  .statusbar-left{ display:none; }
+  .image-viewport{ height:300px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="crt-flicker"></div>
+<div class="crt-scanlines"></div>
+<div class="crt-vignette"></div>
+
+<div class="window" id="window">
+
+  <!-- 타이틀 바 -->
+  <header class="titlebar">
+    <span class="titlebar-path" contenteditable="true" spellcheck="false">K:\HOME\<span class="blink">____</span>PERSONAL.exe</span>
+    <div class="titlebar-buttons">
+      <button id="crtToggle" class="tbtn tbtn-accent">[ON]</button>
+      <button class="tbtn">◀ BACK</button>
+      <button class="tbtn">× CLOSE</button>
+    </div>
+  </header>
+
+  <!-- 탭 네비게이션 -->
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="home"    data-key="H">[H]HOME</button>
+    <button class="tab"        data-tab="log"     data-key="L">[L]LOG</button>
+    <button class="tab"        data-tab="memo"    data-key="M">[M]MEMO</button>
+    <button class="tab"        data-tab="story"   data-key="S">[S]STORY</button>
+    <button class="tab"        data-tab="profile" data-key="P">[P]PROFILE</button>
+    <button class="tab"        data-tab="gallery" data-key="G">[G]GALLERY</button>
+    <button class="tab admin-only" data-admin-display="inline-block" data-tab="settings" data-key="">[SETTINGS]</button>
+  </nav>
+
+  <!-- 콘텐츠 영역 -->
+  <main class="content" id="content">
+
+    <!-- ============ HOME ============ -->
+    <section class="pane active" id="pane-home">
+      <div class="image-slot" id="imageSlot">
+        <button class="img-change-btn admin-only" id="imgChangeBtn" type="button" data-admin-display="inline-block">이미지 변경</button>
+        <div class="image-viewport" id="imageViewport">
+          <img id="homeImage" alt="" draggable="false">
+          <div class="image-placeholder admin-only" id="imagePlaceholder" data-admin-display="flex">
+            <span class="ph-main">+ 클릭하여 이미지 추가</span>
+            <span class="ph-sub">Imgur 링크를 붙여넣어 이미지를 삽입할 수 있습니다</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-top:14px;">
+        <div class="dday-box" id="ddayBox">
+          <div class="dday-label" id="ddayLabel">D-DAY</div>
+          <div class="dday-value" id="ddayValue">날짜를 설정해주세요</div>
+          <div class="dday-edit-row admin-only" data-admin-display="flex">
+            <button class="mini-btn" id="ddayEditBtn" type="button">D-DAY 설정</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ LOG ============ -->
+    <section class="pane" id="pane-log">
+      <div class="block">
+        <h2 class="block-title">▓ LOG</h2>
+        <div class="rule"></div>
+      </div>
+
+      <div class="log-search-row">
+        <input type="text" id="logSearchInput" class="mini-input" placeholder="🔍 제목/본문 검색">
+      </div>
+
+      <div class="log-toolbar">
+        <div class="log-cats" id="logCats"></div>
+        <div class="log-right-tools">
+          <button class="mini-btn admin-only" id="logCatManageBtn" type="button" data-admin-display="inline-block">탭 관리</button>
+          <button class="mini-btn primary admin-only" id="logWriteBtn" type="button" data-admin-display="inline-block">+ 새 글 작성</button>
+        </div>
+      </div>
+
+      <div class="log-row-list" id="logList"></div>
+    </section>
+
+    <!-- ============ MEMO ============ -->
+    <section class="pane" id="pane-memo">
+      <div class="block">
+        <h2 class="block-title">▓ MEMO</h2>
+        <div class="rule"></div>
+      </div>
+
+      <div class="memo-toolbar admin-only" data-admin-display="flex">
+        <button class="mini-btn primary" id="memoAddBtn" type="button">+ 메모 추가</button>
+      </div>
+
+      <div class="memo-grid" id="memoGrid"></div>
+    </section>
+
+    <!-- ============ STORY ============ -->
+    <section class="pane" id="pane-story">
+      <div class="block">
+        <h2 class="block-title">▓ STORY</h2>
+        <div class="rule"></div>
+      </div>
+
+      <div class="story-line-toolbar">
+        <div class="story-line-tabs" id="storyLineTabs"></div>
+        <button class="mini-btn admin-only" id="storyLineManageBtn" data-admin-display="inline-block" type="button">라인 관리</button>
+      </div>
+
+      <div class="story-entry-toolbar admin-only" data-admin-display="flex">
+        <button class="mini-btn primary" id="storyEntryAddBtn" type="button">+ 항목 추가</button>
+      </div>
+
+      <div class="story-timeline" id="storyTimeline"></div>
+    </section>
+
+    <!-- ============ PROFILE ============ -->
+    <section class="pane" id="pane-profile">
+      <div class="block">
+        <h2 class="block-title">▓ PROFILE</h2>
+        <div class="rule"></div>
+      </div>
+
+      <div class="profile-cards" id="profileCards">
+        <div class="profile-card" id="profileCard-0" data-card="0">
+          <div class="profile-card-head">
+            <span class="profile-card-name profile-editable" id="profileName-0" contenteditable="false" data-profile-field="name" data-card="0"></span>
+            <label class="profile-bg-label admin-only" data-admin-display="inline-flex">
+              배경색 <input type="color" class="profile-bg-picker" data-card="0">
+            </label>
+          </div>
+          <div class="profile-card-sections" id="profileSections-0"></div>
+        </div>
+        <div class="profile-card" id="profileCard-1" data-card="1">
+          <div class="profile-card-head">
+            <span class="profile-card-name profile-editable" id="profileName-1" contenteditable="false" data-profile-field="name" data-card="1"></span>
+            <label class="profile-bg-label admin-only" data-admin-display="inline-flex">
+              배경색 <input type="color" class="profile-bg-picker" data-card="1">
+            </label>
+          </div>
+          <div class="profile-card-sections" id="profileSections-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ GALLERY ============ -->
+    <section class="pane" id="pane-gallery">
+      <div class="block">
+        <h2 class="block-title">▓ GALLERY</h2>
+        <div class="rule"></div>
+      </div>
+
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </section>
+
+    <!-- ============ SETTINGS (관리자 전용) ============ -->
+    <section class="pane" id="pane-settings">
+      <div class="block">
+        <h2 class="block-title">▓ SETTINGS</h2>
+        <div class="rule"></div>
+      </div>
+      <div class="block">
+        <h3 class="block-title small">▓ 비밀번호 변경</h3>
+        <div class="rule"></div>
+        <div class="pw-form">
+          <input type="password" id="settingsCurrentPw" class="mini-input" placeholder="현재 비밀번호" autocomplete="off">
+          <input type="password" id="settingsNewPw" class="mini-input" placeholder="새 비밀번호" autocomplete="off">
+          <input type="password" id="settingsNewPw2" class="mini-input" placeholder="새 비밀번호 확인" autocomplete="off">
+          <button class="mini-btn primary" id="settingsPwSaveBtn" type="button" style="align-self:flex-start;">비밀번호 변경</button>
+          <p id="settingsPwMsg" class="dim" style="font-size:12px; margin:0;"></p>
+        </div>
+      </div>
+      <div class="block">
+        <h3 class="block-title small">▓ GitHub Gist 동기화</h3>
+        <div class="rule"></div>
+        <p class="dim" style="font-size:12px;">
+          이 사이트 데이터를 GitHub Gist에 백업/복원합니다. 토큰과 Gist ID는 이 브라우저에만 저장되며,
+          Gist에 올라가는 파일 내용에는 절대 포함되지 않습니다.
+        </p>
+        <div class="pw-form">
+          <input type="password" id="gistTokenInput" class="mini-input" placeholder="GitHub Personal Access Token (gist 권한)" autocomplete="off">
+          <input type="text" id="gistIdInput" class="mini-input" placeholder="Gist ID" autocomplete="off">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="mini-btn primary" id="gistSaveBtn" type="button">Gist에 저장</button>
+            <button class="mini-btn" id="gistLoadBtn" type="button">Gist에서 불러오기</button>
+          </div>
+          <p id="gistSyncStatus" class="dim" style="font-size:11px; margin:0;"></p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 하단 상태 바 -->
+  <footer class="statusbar">
+    <div class="statusbar-right">
+      <span id="bgmToggle" class="bgm">[▮▮] BGM</span>
+      <span class="sep">|</span>
+      <span id="adminLoginBtn" class="admin-toggle">[관리자 로그인]</span>
+      <span id="adminLogoutBtn" class="admin-toggle hidden">[관리자 모드 · 로그아웃]</span>
+      <span class="sep">|</span>
+      <span id="currentTab" class="current-tab">HOME</span>
+    </div>
+  </footer>
+
+</div>
+
+<!-- 공용 모달 -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal-box">
+    <h3 class="modal-title" id="modalTitle"></h3>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<!-- 갤러리 라이트박스 -->
+<div class="lightbox-overlay hidden" id="lightboxOverlay">
+  <button class="lightbox-close" id="lightboxClose" type="button">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- 토스트 알림 -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ============================================================
+     0. 데이터 저장소 (localStorage)
+     ------------------------------------------------------------
+     이 사이트는 서버 없이 브라우저에만 데이터를 저장합니다.
+     즉, 이 브라우저/이 기기에서만 데이터가 유지되며
+     다른 사람 브라우저에는 반영되지 않습니다.
+  ============================================================ */
+  const STORAGE_KEY = 'pa_site_data_v1';
+  const SESSION_KEY = 'pa_admin_session';
+
+  const PROFILE_SECTION_ORDER_DEFAULT = ['image','quote','table','appearance','personality','ability','story','likes','dislikes'];
+
+  function defaultProfileCard(){
+    return {
+      bg: '',
+      name: '이름 / 닉네임',
+      image: '',
+      quote: '',
+      tableLabelWidth: 76,
+      table: [
+        { id: uid(), label: '별칭', value: '' },
+        { id: uid(), label: '나이', value: '' },
+        { id: uid(), label: '키', value: '' }
+      ],
+      appearance: '',
+      personality: '',
+      ability: '',
+      story: '',
+      likes: [],
+      dislikes: [],
+      order: PROFILE_SECTION_ORDER_DEFAULT.slice()
+    };
+  }
+
+  const DEFAULT_DATA = {
+    adminPw: '0000',
+    home: {
+      cover: '',
+      avatar: '',
+      title: 'PERSONAL ARCHIVE',
+      dday: { label: 'D-DAY', date: '', title: '', mode: 'countdown', startDate: '' }
+    },
+    logCategories: ['전체', '일상', '작업'],
+    logs: [
+      { id:'l1', date:'2026.07.06', type:'log', category:'일상', title:'첫 로그 항목 제목', body:'여기에 기록할 내용을 적습니다. 날짜와 제목을 바꿔가며 계속 추가해 나가면 됩니다.', images:[], secret:{ on:false, pw:'' }, comments:[] },
+      { id:'l2', date:'2026.06.28', type:'daily', category:'일상', title:'두 번째 로그 항목 제목', body:'로그 항목 예시 텍스트입니다. 필요에 따라 이미지나 링크도 함께 넣을 수 있습니다.', images:[], secret:{ on:false, pw:'' }, comments:[] },
+      { id:'l3', date:'2026.06.10', type:'memo', category:'작업', title:'세 번째 로그 항목 제목', body:'과거 기록을 아래로 계속 쌓아가는 방식의 타임라인입니다.', images:[], secret:{ on:false, pw:'' }, comments:[] }
+    ],
+    memos: [
+      { id:'m1', tag:'메모', text:'짧은 메모 내용 예시입니다. 카드 형태로 하나씩 쌓입니다.', date:'2026.07.05' },
+      { id:'m2', tag:'생각', text:'두 번째 메모입니다. 태그를 이용해 종류별로 구분할 수 있습니다.', date:'2026.07.02' },
+      { id:'m3', tag:'스크랩', text:'인상 깊었던 내용이나 링크를 짧게 남기는 카드입니다.', date:'2026.06.30' },
+      { id:'m4', tag:'메모', text:'네 번째 메모 카드 예시 텍스트입니다.', date:'2026.06.21' }
+    ],
+    story: {
+      lines: [
+        { id:'sl1', name:'메인 스토리', entries: [
+          { id:'se1', title:'첫 장면', date:'2026.05.01', content:'이야기의 시작 부분을 적는 예시 항목입니다. 내용 길이에 따라 상자 크기가 자동으로 조절됩니다.', images:[], color:'' },
+          { id:'se2', title:'두 번째 장면', date:'2026.06.15', content:'시간순으로 자동 정렬되는 두 번째 항목 예시입니다.', images:[], color:'' }
+        ] }
+      ],
+      activeLine: 'sl1'
+    },
+    profile: {
+      cards: [ defaultProfileCard(), defaultProfileCard() ]
+    },
+    gallery: []
+  };
+
+  function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw){
+        const parsed = JSON.parse(raw);
+        return Object.assign(deepClone(DEFAULT_DATA), parsed);
+      }
+    }catch(e){ /* localStorage 사용 불가 환경 - 기본값 사용 */ }
+    return deepClone(DEFAULT_DATA);
+  }
+
+  function saveData(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch(e){ /* 저장 실패 시 조용히 무시 (이번 세션 동안은 메모리에 유지됨) */ }
+  }
+
+  let data = loadData();
+  let isAdmin = false;
+  try{ isAdmin = sessionStorage.getItem(SESSION_KEY) === '1'; }catch(e){}
+
+  /* 이전 버전(단일 스토리라인+상태값 목록) 데이터를 새 구조(다중 라인+타임라인)로 변환 */
+  function migrateStoryData(){
+    const s = data.story;
+    if (!s || !Array.isArray(s.lines)){
+      const oldItems = (s && Array.isArray(s.items)) ? s.items : [];
+      const entries = oldItems.map(it => ({
+        id: it.id || uid(),
+        title: it.name || '제목 없음',
+        date: '',
+        content: '',
+        images: [],
+        color: ''
+      }));
+      data.story = {
+        lines: [ { id: uid(), name: '메인 스토리', entries } ],
+        activeLine: ''
+      };
+    }
+    if (!data.story.lines.length){
+      data.story.lines.push({ id: uid(), name: '메인 스토리', entries: [] });
+    }
+    if (!data.story.activeLine || !data.story.lines.some(l => l.id === data.story.activeLine)){
+      data.story.activeLine = data.story.lines[0].id;
+    }
+    saveData();
+  }
+  migrateStoryData();
+
+  /* 이전 버전(단일 프로필) 데이터를 새 구조(좌/우 캐릭터 카드)로 변환 */
+  function migrateProfileData(){
+    const p = data.profile;
+    if (!p || !Array.isArray(p.cards)){
+      const old = p || {};
+      const card0 = defaultProfileCard();
+      card0.name = old.name || card0.name;
+      card0.image = old.avatar || '';
+      card0.table = [
+        { id: uid(), label: '별칭', value: old.alias || '' },
+        { id: uid(), label: '좋아하는 것', value: old.likes || '' },
+        { id: uid(), label: '역할', value: old.role || '' },
+        { id: uid(), label: '연락처', value: old.contact || '' }
+      ];
+      card0.story = old.note || '';
+      const card1 = defaultProfileCard();
+      data.profile = { cards: [card0, card1] };
+    }
+    data.profile.cards.forEach(c => {
+      if (!Array.isArray(c.order) || c.order.length !== PROFILE_SECTION_ORDER_DEFAULT.length){
+        c.order = PROFILE_SECTION_ORDER_DEFAULT.slice();
+      }
+      if (!Array.isArray(c.table)) c.table = [];
+      if (!Array.isArray(c.likes)) c.likes = [];
+      if (!Array.isArray(c.dislikes)) c.dislikes = [];
+      if (typeof c.tableLabelWidth !== 'number') c.tableLabelWidth = 76;
+      if (typeof c.bg !== 'string') c.bg = '';
+      ['name','image','quote','appearance','personality','ability','story'].forEach(f => {
+        if (typeof c[f] !== 'string') c[f] = '';
+      });
+    });
+    saveData();
+  }
+  migrateProfileData();
+
+  function escapeHtml(str){
+    return String(str == null ? '' : str).replace(/[&<>"']/g, s => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    }[s]));
+  }
+  function uid(){ return 'id' + Math.random().toString(36).slice(2, 9); }
+  function todayIso(){ return new Date().toISOString().slice(0, 10); }
+  function todayDot(){ return todayIso().replace(/-/g, '.'); }
+  function dotFromIso(iso){ return iso.replace(/-/g, '.'); }
+  function isoFromDot(dot){ return dot.replace(/\./g, '-'); }
+
+  /* ============================================================
+     1. 공용 모달
+  ============================================================ */
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalBox      = modalOverlay.querySelector('.modal-box');
+  const modalTitle    = document.getElementById('modalTitle');
+  const modalBody     = document.getElementById('modalBody');
+  const modalActions  = document.getElementById('modalActions');
+
+  function openModal({ title, bodyHTML, buttons, wide }){
+    modalTitle.textContent = title;
+    modalTitle.style.display = title ? '' : 'none';
+    modalBody.innerHTML = bodyHTML;
+    modalActions.innerHTML = '';
+    modalBox.classList.toggle('modal-box-wide', !!wide);
+    (buttons || []).forEach(b => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'modal-btn' + (b.primary ? ' primary' : '');
+      btn.textContent = b.label;
+      btn.addEventListener('click', b.onClick);
+      modalActions.appendChild(btn);
+    });
+    modalOverlay.classList.remove('hidden');
+  }
+  function closeModal(){ modalOverlay.classList.add('hidden'); }
+  modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modalOverlay.classList.contains('hidden')) closeModal();
+  });
+
+  function openImageUrlModal(title, currentUrl, onApply){
+    openModal({
+      title,
+      bodyHTML: `
+        <p class="modal-hint">Imgur에 이미지를 업로드한 뒤, 이미지 링크(URL)를 아래에 붙여넣어주세요.</p>
+        <input type="text" id="genImgUrlInput" class="modal-input" placeholder="https://i.imgur.com/xxxxxxx.png" value="${escapeHtml(currentUrl || '')}" spellcheck="false">
+      `,
+      buttons: [
+        { label:'Imgur 업로드 페이지 열기', onClick: () => window.open('https://imgur.com/upload', '_blank', 'noopener') },
+        { label:'취소', onClick: closeModal },
+        { label:'적용', primary:true, onClick: () => {
+            const url = document.getElementById('genImgUrlInput').value.trim();
+            if (!url) return;
+            onApply(url);
+            closeModal();
+          }
+        }
+      ]
+    });
+    setTimeout(() => {
+      const inp = document.getElementById('genImgUrlInput');
+      if (inp){
+        inp.focus();
+        inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') modalActions.lastChild.click(); });
+      }
+    }, 0);
+  }
+
+  /* ============================================================
+     1.5 토스트 알림
+  ============================================================ */
+  const toastContainer = document.getElementById('toastContainer');
+  function toast(message, type, duration){
+    if (!toastContainer) return;
+    duration = duration || 4000;
+    const el = document.createElement('div');
+    el.className = 'toast' + (type ? ' ' + type : '');
+    el.textContent = message;
+    toastContainer.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('hide');
+      setTimeout(() => el.remove(), 200);
+    }, duration);
+  }
+
+  /* ============================================================
+     2. 탭 전환
+  ============================================================ */
+  const tabs = Array.from(document.querySelectorAll('.tab'));
+  const panes = Array.from(document.querySelectorAll('.pane'));
+  const currentTabLabel = document.getElementById('currentTab');
+
+  function visibleOrder(){
+    return tabs.filter(t => t.style.display !== 'none').map(t => t.dataset.tab);
+  }
+
+  function activate(name){
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    panes.forEach(p => p.classList.toggle('active', p.id === 'pane-' + name));
+    if (currentTabLabel) currentTabLabel.textContent = name.toUpperCase();
+    document.getElementById('content').scrollTop = 0;
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => activate(tab.dataset.tab));
+  });
+
+  document.querySelectorAll('.jump').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      activate(link.dataset.tab);
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!modalOverlay.classList.contains('hidden')) return;
+    if (document.activeElement && ['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+    if (document.activeElement && document.activeElement.isContentEditable) return;
+
+    const order = visibleOrder();
+    const activeTabEl = tabs.find(t => t.classList.contains('active'));
+    const activeName = activeTabEl ? activeTabEl.dataset.tab : order[0];
+    const idx = order.indexOf(activeName);
+
+    if (e.key === 'ArrowRight'){ activate(order[(idx + 1) % order.length]); }
+    else if (e.key === 'ArrowLeft'){ activate(order[(idx - 1 + order.length) % order.length]); }
+    else {
+      const match = tabs.find(t => t.dataset.key && t.dataset.key.toLowerCase() === e.key.toLowerCase());
+      if (match && match.style.display !== 'none') activate(match.dataset.tab);
+    }
+  });
+
+  // CRT 효과 토글
+  const crtToggle = document.getElementById('crtToggle');
+  if (crtToggle){
+    crtToggle.addEventListener('click', () => {
+      const isOff = document.body.classList.toggle('crt-off');
+      crtToggle.textContent = isOff ? '[OFF]' : '[ON]';
+      crtToggle.classList.toggle('off', isOff);
+    });
+  }
+
+  // BGM 표시 토글
+  const bgmToggle = document.getElementById('bgmToggle');
+  if (bgmToggle){
+    let playing = true;
+    bgmToggle.addEventListener('click', () => {
+      playing = !playing;
+      bgmToggle.textContent = playing ? '[▮▮] LOVE?' : '[▶] LOVE';
+    });
+  }
+
+  /* ============================================================
+     3. 관리자 로그인 / 권한 제어
+  ============================================================ */
+  const adminLoginBtn  = document.getElementById('adminLoginBtn');
+  const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+
+  function eyeIconSVG(open){
+    return open
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a20.3 20.3 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a20.3 20.3 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  }
+
+  function openLoginModal(){
+    openModal({
+      title: '▓ 관리자 로그인',
+      bodyHTML: `
+        <p class="modal-hint">관리자 비밀번호를 입력해주세요.</p>
+        <div class="pw-input-row">
+          <input type="password" id="loginPwInput" class="modal-input" placeholder="비밀번호" autocomplete="off">
+          <button type="button" class="eye-btn" id="loginPwEye" aria-label="비밀번호 표시">${eyeIconSVG(false)}</button>
+        </div>
+        <p id="loginErrorMsg" class="modal-hint hidden" style="color:#ff6b6b;">비밀번호가 올바르지 않습니다.</p>
+      `,
+      buttons: [
+        { label:'취소', onClick: closeModal },
+        { label:'로그인', primary:true, onClick: attemptLogin }
+      ]
+    });
+    setTimeout(() => {
+      const pwInput = document.getElementById('loginPwInput');
+      const eyeBtn = document.getElementById('loginPwEye');
+      if (pwInput) pwInput.focus();
+      if (eyeBtn){
+        eyeBtn.addEventListener('click', () => {
+          const showing = pwInput.type === 'text';
+          pwInput.type = showing ? 'password' : 'text';
+          eyeBtn.innerHTML = eyeIconSVG(!showing);
+        });
+      }
+      if (pwInput){
+        pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); });
+      }
+    }, 0);
+  }
+
+  function attemptLogin(){
+    const pwInput = document.getElementById('loginPwInput');
+    const errorMsg = document.getElementById('loginErrorMsg');
+    if (!pwInput) return;
+    if (pwInput.value === data.adminPw){
+      isAdmin = true;
+      try{ sessionStorage.setItem(SESSION_KEY, '1'); }catch(e){}
+      closeModal();
+      applyAdminUI();
+    } else {
+      if (errorMsg) errorMsg.classList.remove('hidden');
+    }
+  }
+
+  adminLoginBtn.addEventListener('click', openLoginModal);
+  adminLogoutBtn.addEventListener('click', () => {
+    isAdmin = false;
+    try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){}
+    applyAdminUI();
+  });
+
+  function applyAdminUI(){
+    document.body.classList.toggle('is-admin', isAdmin);
+
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = isAdmin ? (el.dataset.adminDisplay || 'inline-block') : 'none';
+    });
+
+    adminLoginBtn.classList.toggle('hidden', isAdmin);
+    adminLogoutBtn.classList.toggle('hidden', !isAdmin);
+
+    // 관리자가 아니면 SETTINGS/제목 편집 상태 등 정리
+    if (!isAdmin){
+      const activeTabEl = tabs.find(t => t.classList.contains('active'));
+      if (activeTabEl && activeTabEl.dataset.tab === 'settings') activate('home');
+      if (homeTitle) homeTitle.contentEditable = 'false';
+      if (homeTitleEditBtn) homeTitleEditBtn.textContent = '제목 편집';
+    }
+
+    renderLogCats();
+    renderLogList();
+    renderMemoGrid();
+    renderStoryLineTabs();
+    renderStoryTimeline();
+    renderProfile();
+    renderGalleryGrid();
+  }
+
+  /* ============================================================
+     4. 이미지 무단 저장 방지 (전역, 관리자 제외)
+  ============================================================ */
+  document.addEventListener('contextmenu', (e) => {
+    if (e.target.tagName === 'IMG' && !isAdmin) e.preventDefault();
+  });
+  document.addEventListener('dragstart', (e) => {
+    if (e.target.tagName === 'IMG' && !isAdmin) e.preventDefault();
+  });
+
+  /* ============================================================
+     5. HOME - 커버 이미지 (확대/이동), 아바타, 제목, D-DAY
+  ============================================================ */
+  const imageViewport    = document.getElementById('imageViewport');
+  const homeImage        = document.getElementById('homeImage');
+  const imagePlaceholder = document.getElementById('imagePlaceholder');
+  const imgChangeBtn     = document.getElementById('imgChangeBtn');
+  const homeAvatarImg    = document.getElementById('homeAvatarImg');
+  const homeAvatarPh     = document.getElementById('homeAvatarPh');
+  const homeAvatarBtn    = document.getElementById('homeAvatarBtn');
+  const homeTitle        = document.getElementById('homeTitle');
+  const homeTitleEditBtn = document.getElementById('homeTitleEditBtn');
+  const ddayLabel        = document.getElementById('ddayLabel');
+  const ddayValue        = document.getElementById('ddayValue');
+  const ddayEditBtn      = document.getElementById('ddayEditBtn');
+
+  let coverScale = 1, coverPosX = 0, coverPosY = 0;
+  let coverNaturalW = 0, coverNaturalH = 0;
+  let coverDragging = false, cStartX = 0, cStartY = 0, cStartPosX = 0, cStartPosY = 0;
+
+  function applyCoverTransform(){
+    homeImage.style.transform = `translate(${coverPosX}px, ${coverPosY}px) scale(${coverScale})`;
+  }
+  function fitCoverImage(){
+    const vw = imageViewport.clientWidth;
+    const vh = imageViewport.clientHeight;
+    if (!vw || !vh || !coverNaturalW || !coverNaturalH) return;
+    coverScale = Math.max(vw / coverNaturalW, vh / coverNaturalH);
+    coverPosX = (vw - coverNaturalW * coverScale) / 2;
+    coverPosY = (vh - coverNaturalH * coverScale) / 2;
+    applyCoverTransform();
+  }
+  function loadCoverImage(url, skipSave){
+    homeImage.onload = () => {
+      coverNaturalW = homeImage.naturalWidth;
+      coverNaturalH = homeImage.naturalHeight;
+      homeImage.style.display = 'block';
+      imagePlaceholder.style.display = 'none';
+      imageViewport.classList.add('has-image');
+      fitCoverImage();
+      if (!skipSave){ data.home.cover = url; saveData(); }
+    };
+    homeImage.onerror = () => { if (!skipSave) alert('이미지를 불러올 수 없습니다. 링크를 다시 확인해주세요.'); };
+    homeImage.src = url;
+  }
+
+  imagePlaceholder.addEventListener('click', () => {
+    if (!isAdmin) return;
+    openImageUrlModal('▓ 커버 이미지 삽입', '', (url) => loadCoverImage(url));
+  });
+  imgChangeBtn.addEventListener('click', () => {
+    if (!isAdmin) return;
+    openImageUrlModal('▓ 커버 이미지 변경', data.home.cover, (url) => loadCoverImage(url));
+  });
+
+  imageViewport.addEventListener('wheel', (e) => {
+    if (!coverNaturalW || !isAdmin) return;
+    e.preventDefault();
+    const rect = imageViewport.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const minScale = Math.max(rect.width / coverNaturalW, rect.height / coverNaturalH) * 0.6;
+    const maxScale = minScale * 8;
+    const factor = e.deltaY < 0 ? 1.08 : 1 / 1.08;
+    const newScale = Math.min(maxScale, Math.max(minScale, coverScale * factor));
+    coverPosX = mx - (mx - coverPosX) * (newScale / coverScale);
+    coverPosY = my - (my - coverPosY) * (newScale / coverScale);
+    coverScale = newScale;
+    applyCoverTransform();
+  }, { passive:false });
+
+  imageViewport.addEventListener('mousedown', (e) => {
+    if (!coverNaturalW || !isAdmin) return;
+    coverDragging = true;
+    cStartX = e.clientX; cStartY = e.clientY;
+    cStartPosX = coverPosX; cStartPosY = coverPosY;
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!coverDragging) return;
+    coverPosX = cStartPosX + (e.clientX - cStartX);
+    coverPosY = cStartPosY + (e.clientY - cStartY);
+    applyCoverTransform();
+  });
+  window.addEventListener('mouseup', () => {
+    if (coverDragging){ coverDragging = false; if (data.home.cover){ /* 위치는 세션 동안만 유지 */ } }
+  });
+  imageViewport.addEventListener('touchstart', (e) => {
+    if (!coverNaturalW || !isAdmin || e.touches.length !== 1) return;
+    coverDragging = true;
+    cStartX = e.touches[0].clientX; cStartY = e.touches[0].clientY;
+    cStartPosX = coverPosX; cStartPosY = coverPosY;
+  }, { passive:true });
+  imageViewport.addEventListener('touchmove', (e) => {
+    if (!coverDragging || e.touches.length !== 1) return;
+    coverPosX = cStartPosX + (e.touches[0].clientX - cStartX);
+    coverPosY = cStartPosY + (e.touches[0].clientY - cStartY);
+    applyCoverTransform();
+  }, { passive:true });
+  imageViewport.addEventListener('touchend', () => { coverDragging = false; });
+  window.addEventListener('resize', () => { if (coverNaturalW) fitCoverImage(); });
+
+  function renderHomeAvatar(){
+    if (!homeAvatarImg || !homeAvatarPh) return;
+    if (data.home.avatar){
+      homeAvatarImg.src = data.home.avatar;
+      homeAvatarImg.style.display = 'block';
+      homeAvatarPh.style.display = 'none';
+    } else {
+      homeAvatarImg.style.display = 'none';
+      homeAvatarPh.style.display = 'block';
+    }
+  }
+  if (homeAvatarBtn) homeAvatarBtn.addEventListener('click', () => {
+    if (!isAdmin) return;
+    openImageUrlModal('▓ 아바타 이미지 변경', data.home.avatar, (url) => {
+      data.home.avatar = url; saveData(); renderHomeAvatar();
+    });
+  });
+
+  if (homeTitleEditBtn) homeTitleEditBtn.addEventListener('click', () => {
+    if (!isAdmin) return;
+    const editing = homeTitle.contentEditable === 'true';
+    if (!editing){
+      homeTitle.contentEditable = 'true';
+      homeTitle.focus();
+      homeTitleEditBtn.textContent = '제목 저장';
+    } else {
+      homeTitle.contentEditable = 'false';
+      data.home.title = homeTitle.textContent.trim();
+      saveData();
+      homeTitleEditBtn.textContent = '제목 편집';
+    }
+  });
+
+  function normalizeDday(){
+    if (!data.home.dday || typeof data.home.dday !== 'object') {
+      data.home.dday = { label:'D-DAY', date:'', title:'', mode:'countdown', startDate:'' };
+      return;
+    }
+    data.home.dday.label = (data.home.dday.label || 'D-DAY').trim() || 'D-DAY';
+    data.home.dday.date = data.home.dday.date || '';
+    data.home.dday.title = data.home.dday.title || '';
+    data.home.dday.mode = data.home.dday.mode || 'countdown';
+    data.home.dday.startDate = data.home.dday.startDate || '';
+  }
+
+  function renderDday(){
+    normalizeDday();
+    ddayLabel.textContent = data.home.dday.label || 'D-DAY';
+
+    const mode = data.home.dday.mode || 'countdown';
+    const targetDate = data.home.dday.date;
+    const startDate = data.home.dday.startDate;
+    const title = (data.home.dday.title || '').trim();
+
+    ddayBox.classList.toggle('has-target', !!targetDate);
+
+    if (!targetDate){
+      ddayValue.textContent = '날짜를 설정해주세요';
+      return;
+    }
+
+    const target = new Date(targetDate + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const diffDays = Math.round((target - today) / 86400000);
+
+    let mainValue = '';
+    if (mode === 'countup'){
+      if (diffDays >= 0) mainValue = 'DAY ' + (diffDays + 1);
+      else mainValue = 'DAY -';
+    } else if (mode === 'fromStart' && startDate){
+      const start = new Date(startDate + 'T00:00:00');
+      const span = Math.round((target - start) / 86400000) + 1;
+      if (Number.isFinite(span) && span > 0) mainValue = diffDays >= 0 ? diffDays + ' / ' + span : span + '일 완료';
+    }
+
+    if (!mainValue){
+      if (diffDays === 0) mainValue = 'D-DAY';
+      else if (diffDays > 0) mainValue = 'D-' + diffDays;
+      else mainValue = 'D+' + Math.abs(diffDays);
+    }
+
+    ddayValue.textContent = title ? mainValue + '  ' + title : mainValue;
+  }
+  ddayEditBtn.addEventListener('click', () => {
+    if (!isAdmin) return;
+    normalizeDday();
+    openModal({
+      title:'▓ D-DAY 설정',
+      bodyHTML:`
+        <input type="text" id="ddayLabelInput" class="modal-input" placeholder="라벨 (예: D-DAY, DAY, COUNT)" value="${escapeHtml(data.home.dday.label || '')}">
+        <input type="text" id="ddayTitleInput" class="modal-input" placeholder="표시 문구 (예: 첫 만남, 데뷔, 프로젝트 마감)" value="${escapeHtml(data.home.dday.title || '')}">
+        <select id="ddayModeInput" class="modal-input">
+          <option value="countdown" ${data.home.dday.mode === 'countdown' ? 'selected' : ''}>기본 D-DAY</option>
+          <option value="countup" ${data.home.dday.mode === 'countup' ? 'selected' : ''}>DAY 카운트업</option>
+          <option value="fromStart" ${data.home.dday.mode === 'fromStart' ? 'selected' : ''}>진행률 형식</option>
+        </select>
+        <input type="date" id="ddayDateInput" class="modal-input" value="${escapeHtml(data.home.dday.date || '')}">
+        <input type="date" id="ddayStartDateInput" class="modal-input" value="${escapeHtml(data.home.dday.startDate || '')}" placeholder="시작일 (진행률 형식용)">
+        <p class="modal-hint">기본 D-DAY, DAY 카운트업, 시작일~목표일 진행률 표시까지 설정할 수 있습니다.</p>
+      `,
+      buttons:[
+        { label:'취소', onClick: closeModal },
+        { label:'초기화', onClick: () => {
+            if (!isAdmin) return;
+            data.home.dday = { label:'D-DAY', date:'', title:'', mode:'countdown', startDate:'' };
+            saveData(); renderDday(); closeModal();
+          }
+        },
+        { label:'저장', primary:true, onClick: () => {
+            if (!isAdmin) return;
+            data.home.dday.label = document.getElementById('ddayLabelInput').value.trim() || 'D-DAY';
+            data.home.dday.title = document.getElementById('ddayTitleInput').value.trim();
+            data.home.dday.mode = document.getElementById('ddayModeInput').value;
+            data.home.dday.date = document.getElementById('ddayDateInput').value;
+            data.home.dday.startDate = document.getElementById('ddayStartDateInput').value;
+            saveData(); renderDday(); closeModal();
+          }
+        }
+      ]
+    });
+  });
+
+  function renderHome(){
+    normalizeDday();
+    if (homeTitle) homeTitle.textContent = data.home.title || 'PERSONAL ARCHIVE';
+    renderHomeAvatar();
+    renderDday();
+    if (data.home.cover) loadCoverImage(data.home.cover, true);
+  }
+
+  /* ============================================================
+     6. LOG
+  ============================================================ */
+  const logCats        = document.getElementById('logCats');
+  const logSearchInput = document.getElementById('logSearchInput');
+  const logCatManageBtn= document.getElementById('logCatManageBtn');
+  const logWriteBtn    = document.getElementById('logWriteBtn');
+  const logList        = document.getElementById('logList');
+  let currentLogFilter = '전체';
+  let currentLogSearch = '';
+
+  const LOG_TYPES = [
+    { value:'log',   label:'LOG' },
+    { value:'photo', label:'PHOTO GALLERY' },
+    { value:'daily', label:'DAILY' },
+    { value:'memo',  label:'MEMO' }
+  ];
+  function logTypeLabel(v){ const t = LOG_TYPES.find(t => t.value === v); return t ? t.label : 'LOG'; }
+
+  function stripHtml(html){
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html || '';
+    return tmp.textContent || '';
+  }
+  function matchesLogSearch(log, q){
+    if (!q) return true;
+    const plain = (log.title + ' ' + stripHtml(log.body)).toLowerCase();
+    return plain.includes(q.toLowerCase());
+  }
+  function buildLogShareUrl(id){
+    const url = new URL(window.location.href);
+    url.searchParams.set('post', id);
+    return url.toString();
+  }
+  function refreshAdminOnlyIn(container){
+    container.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = isAdmin ? (el.dataset.adminDisplay || 'inline-block') : 'none';
+    });
+  }
+
+  /* ---------- 카테고리(탭) ---------- */
+  function renderLogCats(){
+    logCats.innerHTML = data.logCategories.map(c => `
+      <button class="cat-chip ${c === currentLogFilter ? 'active' : ''}" data-cat="${escapeHtml(c)}" type="button">
+        ${escapeHtml(c)}
+      </button>
+    `).join('');
+  }
+  logCats.addEventListener('click', (e) => {
+    const chip = e.target.closest('.cat-chip');
+    if (chip){ currentLogFilter = chip.dataset.cat; renderLogCats(); renderLogList(); }
+  });
+
+  function renderCatManageBody(){
+    const cats = data.logCategories.slice(1); // '전체' 제외
+    modalBody.innerHTML = `
+      <p class="modal-hint">카테고리를 추가·수정·삭제하거나 ↑↓ 버튼으로 순서를 바꿀 수 있습니다.</p>
+      <div id="catManageList">
+        ${cats.map((c, i) => `
+          <div class="cat-manage-row">
+            <input type="text" class="mini-input cat-manage-input" data-idx="${i}" value="${escapeHtml(c)}">
+            <button class="mini-btn" data-action="cat-up" data-idx="${i}" type="button" ${i === 0 ? 'disabled' : ''}>↑</button>
+            <button class="mini-btn" data-action="cat-down" data-idx="${i}" type="button" ${i === cats.length - 1 ? 'disabled' : ''}>↓</button>
+            <button class="mini-btn danger" data-action="cat-del" data-idx="${i}" type="button">삭제</button>
+          </div>
+        `).join('') || '<p class="dim">등록된 카테고리가 없습니다.</p>'}
+      </div>
+      <div class="cat-manage-add-row">
+        <input type="text" id="catManageNewInput" class="mini-input" placeholder="새 카테고리">
+        <button class="mini-btn" id="catManageAddBtn" type="button">추가</button>
+      </div>
+    `;
+    const addBtn = document.getElementById('catManageAddBtn');
+    const newInput = document.getElementById('catManageNewInput');
+    addBtn.addEventListener('click', () => {
+      if (!isAdmin) return;
+      const val = newInput.value.trim();
+      if (!val || data.logCategories.includes(val)) return;
+      data.logCategories.push(val);
+      saveData(); renderLogCats(); renderLogList(); renderCatManageBody();
+    });
+    newInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addBtn.click(); });
+  }
+
+  function openCatManageModal(){
+    if (!isAdmin) return;
+    openModal({
+      title: '▓ 카테고리(탭) 관리',
+      bodyHTML: '',
+      buttons: [ { label:'닫기', primary:true, onClick: closeModal } ]
+    });
+    renderCatManageBody();
+  }
+  logCatManageBtn.addEventListener('click', openCatManageModal);
+
+  // 카테고리 관리 모달 내부 동작 (위임 - modalBody는 재사용됨)
+  modalBody.addEventListener('click', (e) => {
+    const upBtn   = e.target.closest('[data-action="cat-up"]');
+    const downBtn = e.target.closest('[data-action="cat-down"]');
+    const delBtn  = e.target.closest('[data-action="cat-del"]');
+    if (upBtn || downBtn || delBtn){
+      if (!isAdmin) return;
+      const idx = parseInt((upBtn || downBtn || delBtn).dataset.idx, 10);
+      const realIdx = idx + 1; // '전체'만큼 오프셋
+      if (upBtn && realIdx > 1){
+        [data.logCategories[realIdx - 1], data.logCategories[realIdx]] = [data.logCategories[realIdx], data.logCategories[realIdx - 1]];
+      } else if (downBtn && realIdx < data.logCategories.length - 1){
+        [data.logCategories[realIdx + 1], data.logCategories[realIdx]] = [data.logCategories[realIdx], data.logCategories[realIdx + 1]];
+      } else if (delBtn){
+        if (!confirm('카테고리를 삭제할까요? 해당 글들은 첫 번째 카테고리로 이동합니다.')) return;
+        const cat = data.logCategories[realIdx];
+        data.logCategories.splice(realIdx, 1);
+        const fallback = data.logCategories[1] || '전체';
+        data.logs.forEach(l => { if (l.category === cat) l.category = fallback; });
+        if (currentLogFilter === cat) currentLogFilter = '전체';
+      }
+      saveData(); renderLogCats(); renderLogList(); renderCatManageBody();
+      return;
+    }
+
+    const shareCopyBtn   = e.target.closest('[data-action="share-copy"]');
+    const shareNativeBtn = e.target.closest('[data-action="share-native"]');
+    const addCommentBtn  = e.target.closest('[data-action="add-comment"]');
+    const delCommentBtn  = e.target.closest('[data-action="delete-comment"]');
+
+    if (shareCopyBtn){
+      const url = buildLogShareUrl(shareCopyBtn.dataset.id);
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(() => alert('링크가 복사되었습니다.')).catch(() => prompt('아래 링크를 복사하세요', url));
+      } else {
+        prompt('아래 링크를 복사하세요', url);
+      }
+      return;
+    }
+    if (shareNativeBtn){
+      const url = buildLogShareUrl(shareNativeBtn.dataset.id);
+      if (navigator.share){
+        navigator.share({ url }).catch(() => {});
+      } else if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(() => alert('링크가 복사되었습니다.'));
+      } else {
+        prompt('아래 링크를 복사하세요', url);
+      }
+      return;
+    }
+    if (addCommentBtn){
+      const id = addCommentBtn.dataset.id;
+      const wrap = addCommentBtn.closest('.comment-form');
+      const authorInput = wrap.querySelector('[data-role="comment-author"]');
+      const textInput   = wrap.querySelector('[data-role="comment-text"]');
+      const secretInput = wrap.querySelector('[data-role="comment-secret"]');
+      const author = authorInput.value.trim() || '익명';
+      const text = textInput.value.trim();
+      if (!text) return;
+      const log = data.logs.find(l => l.id === id);
+      if (log){
+        log.comments.push({ id:uid(), author, text, date: todayDot(), secret: !!(secretInput && secretInput.checked) });
+        saveData(); renderLogList();
+        const commentsWrap = document.getElementById('logDetailComments');
+        if (commentsWrap){
+          commentsWrap.innerHTML = renderLogCommentsHTML(log);
+          refreshAdminOnlyIn(commentsWrap);
+        }
+      }
+      return;
+    }
+    if (delCommentBtn){
+      if (!isAdmin) return;
+      const log = data.logs.find(l => l.id === delCommentBtn.dataset.log);
+      if (log){
+        log.comments = log.comments.filter(c => c.id !== delCommentBtn.dataset.cid);
+        saveData(); renderLogList();
+        const commentsWrap = document.getElementById('logDetailComments');
+        if (commentsWrap){
+          commentsWrap.innerHTML = renderLogCommentsHTML(log);
+          refreshAdminOnlyIn(commentsWrap);
+        }
+      }
+      return;
+    }
+  });
+
+  modalBody.addEventListener('change', (e) => {
+    const input = e.target.closest('.cat-manage-input');
+    if (!input) return;
+    if (!isAdmin) return;
+    const idx = parseInt(input.dataset.idx, 10);
+    const realIdx = idx + 1;
+    const oldName = data.logCategories[realIdx];
+    const newName = input.value.trim();
+    if (!newName || newName === oldName){ input.value = oldName; return; }
+    if (data.logCategories.includes(newName)){ alert('이미 존재하는 카테고리입니다.'); input.value = oldName; return; }
+    data.logCategories[realIdx] = newName;
+    data.logs.forEach(l => { if (l.category === oldName) l.category = newName; });
+    if (currentLogFilter === oldName) currentLogFilter = newName;
+    saveData(); renderLogCats(); renderLogList();
+  });
+
+  /* ---------- 목록(가로 리스트) ---------- */
+  function renderLogEntryHTML(log){
+    const isSecret = !!(log.secret && log.secret.on);
+    const thumb = (!isSecret && log.images && log.images[0])
+      ? `<img src="${escapeHtml(log.images[0])}" alt="">`
+      : `<span>${escapeHtml(logTypeLabel(log.type).slice(0, 2))}</span>`;
+    return `
+    <div class="log-row ${isSecret ? 'is-secret' : ''}" data-id="${log.id}" data-action="open-log">
+      <div class="log-row-thumb">${thumb}</div>
+      <span class="log-row-type">${escapeHtml(logTypeLabel(log.type))}</span>
+      <div class="log-row-main">
+        <span class="log-row-title ${isSecret ? 'secret' : ''}">${isSecret ? '🔒 비밀글' : escapeHtml(log.title)}</span>
+        <span class="log-row-meta"><span>${escapeHtml(log.date)}</span><span>#${escapeHtml(log.category)}</span></span>
+      </div>
+      <span class="log-row-actions admin-only" data-admin-display="inline-flex">
+        <button class="mini-btn" data-action="edit-log" data-id="${log.id}" type="button">수정</button>
+        <button class="mini-btn danger" data-action="delete-log" data-id="${log.id}" type="button">삭제</button>
+      </span>
+    </div>`;
+  }
+
+  function renderLogList(){
+    const q = currentLogSearch.trim();
+    const filtered = data.logs.filter(l =>
+      (currentLogFilter === '전체' || l.category === currentLogFilter) && matchesLogSearch(l, q)
+    );
+    logList.innerHTML = filtered.length
+      ? filtered.map(renderLogEntryHTML).join('')
+      : '<p class="dim">표시할 글이 없습니다.</p>';
+    refreshAdminOnlyIn(logList);
+  }
+
+  logSearchInput.addEventListener('input', () => {
+    currentLogSearch = logSearchInput.value;
+    renderLogList();
+  });
+
+  /* ---------- 작성/수정 폼 (리치 텍스트 에디터 포함) ---------- */
+  function initRteControls(){
+    const editor       = document.getElementById('logFormEditor');
+    const htmlTextarea = document.getElementById('logFormHtml');
+    const toggleBtn     = document.getElementById('rteHtmlToggle');
+    const textColor     = document.getElementById('rteTextColor');
+    const hiliteColor   = document.getElementById('rteHiliteColor');
+    const secretCheck   = document.getElementById('logFormSecret');
+    const secretPwInput = document.getElementById('logFormSecretPw');
+    if (!editor) return;
+
+    editor.dataset.mode = 'rich';
+
+    document.querySelectorAll('.rte-btn[data-cmd]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        editor.focus();
+        document.execCommand(btn.dataset.cmd, false, null);
+      });
+    });
+    if (textColor) textColor.addEventListener('input', () => {
+      editor.focus();
+      document.execCommand('foreColor', false, textColor.value);
+    });
+    if (hiliteColor) hiliteColor.addEventListener('input', () => {
+      editor.focus();
+      document.execCommand('hiliteColor', false, hiliteColor.value);
+    });
+    if (toggleBtn) toggleBtn.addEventListener('click', () => {
+      if (editor.dataset.mode === 'rich'){
+        htmlTextarea.value = editor.innerHTML;
+        editor.style.display = 'none';
+        htmlTextarea.style.display = 'block';
+        editor.dataset.mode = 'html';
+        toggleBtn.textContent = '에디터 모드';
+      } else {
+        editor.innerHTML = htmlTextarea.value;
+        htmlTextarea.style.display = 'none';
+        editor.style.display = 'block';
+        editor.dataset.mode = 'rich';
+        toggleBtn.textContent = 'HTML 모드';
+      }
+    });
+    if (secretCheck) secretCheck.addEventListener('change', () => {
+      secretPwInput.style.display = secretCheck.checked ? 'block' : 'none';
+    });
+  }
+
+  function openLogForm(existing){
+    const cats = data.logCategories.filter(c => c !== '전체');
+    const typeOptions = LOG_TYPES.map(t =>
+      `<option value="${t.value}" ${existing && existing.type === t.value ? 'selected' : ''}>${t.label}</option>`
+    ).join('');
+    const isSecretExisting = !!(existing && existing.secret && existing.secret.on);
+    openModal({
+      title: existing ? '▓ 글 수정' : '▓ 새 글 작성',
+      wide: true,
+      bodyHTML: `
+        <input type="date" id="logFormDate" class="modal-input" value="${existing ? isoFromDot(existing.date) : todayIso()}">
+        <select id="logFormType" class="modal-input">${typeOptions}</select>
+        <select id="logFormCat" class="modal-input">
+          ${cats.map(c => `<option value="${escapeHtml(c)}" ${existing && existing.category === c ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+        </select>
+        <input type="text" id="logFormTitle" class="modal-input" placeholder="제목" value="${existing ? escapeHtml(existing.title) : ''}">
+
+        <div class="rte-toolbar">
+          <button type="button" class="mini-btn rte-btn" data-cmd="bold"><b>B</b></button>
+          <button type="button" class="mini-btn rte-btn" data-cmd="italic"><i>I</i></button>
+          <button type="button" class="mini-btn rte-btn" data-cmd="underline"><u>U</u></button>
+          <label class="rte-color-label" title="글자색">
+            <input type="color" id="rteTextColor" class="rte-color-input" value="#ece6dd">
+          </label>
+          <label class="rte-color-label" title="형광펜 색상">
+            <input type="color" id="rteHiliteColor" class="rte-color-input" value="#ff2323">
+          </label>
+          <button type="button" class="mini-btn" id="rteHtmlToggle">HTML 모드</button>
+        </div>
+        <div id="logFormEditor" class="rte-editor" contenteditable="true">${existing ? existing.body : ''}</div>
+        <textarea id="logFormHtml" class="modal-input modal-textarea rte-html-textarea" rows="6" placeholder="HTML 직접 입력"></textarea>
+
+        <textarea id="logFormImages" class="modal-input modal-textarea" rows="3" placeholder="이미지 URL (줄바꿈으로 구분)">${existing && existing.images ? existing.images.join('\n') : ''}</textarea>
+
+        <div class="log-secret-row">
+          <label><input type="checkbox" id="logFormSecret" ${isSecretExisting ? 'checked' : ''}> 비밀글로 설정</label>
+          <input type="text" id="logFormSecretPw" class="mini-input" placeholder="비밀번호" value="${existing && existing.secret ? escapeHtml(existing.secret.pw || '') : ''}" style="${isSecretExisting ? '' : 'display:none;'}">
+        </div>
+      `,
+      buttons: [
+        { label:'취소', onClick: closeModal },
+        { label: existing ? '저장' : '작성', primary:true, onClick: () => {
+            if (!isAdmin) return;
+            const dateVal = document.getElementById('logFormDate').value;
+            const type = document.getElementById('logFormType').value;
+            const cat = document.getElementById('logFormCat').value || cats[0] || '전체';
+            const title = document.getElementById('logFormTitle').value.trim();
+            const editor = document.getElementById('logFormEditor');
+            const htmlTextarea = document.getElementById('logFormHtml');
+            const body = (editor.dataset.mode === 'html' ? htmlTextarea.value : editor.innerHTML).trim();
+            const images = document.getElementById('logFormImages').value.split('\n').map(s => s.trim()).filter(Boolean);
+            const secretOn = document.getElementById('logFormSecret').checked;
+            const secretPw = document.getElementById('logFormSecretPw').value.trim();
+            if (!title || !dateVal) return;
+            if (secretOn && !secretPw){ alert('비밀글 비밀번호를 입력해주세요.'); return; }
+            const dotDate = dotFromIso(dateVal);
+            const secret = { on: secretOn, pw: secretOn ? secretPw : '' };
+            if (existing){
+              existing.date = dotDate; existing.type = type; existing.category = cat;
+              existing.title = title; existing.body = body; existing.images = images; existing.secret = secret;
+            } else {
+              data.logs.unshift({ id:uid(), date:dotDate, type, category:cat, title, body, images, secret, comments:[] });
+            }
+            saveData(); renderLogList(); closeModal();
+          }
+        }
+      ]
+    });
+    setTimeout(initRteControls, 0);
+  }
+
+  logWriteBtn.addEventListener('click', () => { if (!isAdmin) return; openLogForm(null); });
+
+  /* ---------- 상세보기(모달) ---------- */
+  function renderLogCommentsHTML(log){
+    return `
+      ${log.comments.map(c => `
+        <div class="comment-item" data-cid="${c.id}">
+          <span class="comment-author">${escapeHtml(c.author)}</span>
+          <span class="comment-text">${(c.secret && !isAdmin) ? '🔒 비밀 댓글입니다' : escapeHtml(c.text)}</span>
+          <span class="comment-date">${escapeHtml(c.date)}</span>
+          <button class="mini-btn danger admin-only" data-admin-display="inline-block" data-action="delete-comment" data-log="${log.id}" data-cid="${c.id}" type="button">삭제</button>
+        </div>
+      `).join('') || '<p class="dim" style="font-size:12px;">등록된 댓글이 없습니다.</p>'}
+      <div class="comment-form">
+        <input type="text" class="mini-input" placeholder="이름" data-role="comment-author">
+        <input type="text" class="mini-input" placeholder="방명록을 남겨보세요" data-role="comment-text">
+        <label class="comment-secret-label"><input type="checkbox" data-role="comment-secret"> 비밀 댓글</label>
+        <button class="mini-btn" data-action="add-comment" data-id="${log.id}" type="button">등록</button>
+      </div>
+    `;
+  }
+
+  function openLogDetail(log){
+    const imagesHTML = (log.images && log.images.length)
+      ? `<div class="log-detail-images">${log.images.map(u => `<img src="${escapeHtml(u)}" alt="">`).join('')}</div>`
+      : '';
+    openModal({
+      title: '',
+      wide: true,
+      bodyHTML: `
+        ${imagesHTML}
+        <h3 class="log-detail-title">${escapeHtml(log.title)}</h3>
+        <div class="log-detail-meta">
+          <span class="log-row-type">${escapeHtml(logTypeLabel(log.type))}</span>
+          <span>${escapeHtml(log.date)}</span>
+          <span>#${escapeHtml(log.category)}</span>
+        </div>
+        <div class="log-detail-body">${log.body}</div>
+        <div class="log-detail-share">
+          <button class="mini-btn" data-action="share-copy" data-id="${log.id}" type="button">🔗 링크 복사</button>
+          <button class="mini-btn" data-action="share-native" data-id="${log.id}" type="button">공유하기</button>
+        </div>
+        <div class="log-comments" id="logDetailComments" data-id="${log.id}">
+          ${renderLogCommentsHTML(log)}
+        </div>
+      `,
+      buttons: [ { label:'닫기', onClick: closeModal } ]
+    });
+    const commentsWrap = document.getElementById('logDetailComments');
+    if (commentsWrap) refreshAdminOnlyIn(commentsWrap);
+  }
+
+  function tryOpenLog(id){
+    const log = data.logs.find(l => l.id === id);
+    if (!log) return;
+    const isSecret = !!(log.secret && log.secret.on);
+    if (isSecret && !isAdmin){
+      openModal({
+        title: '▓ 비밀글 확인',
+        bodyHTML: `
+          <p class="modal-hint">이 글은 비밀글입니다. 비밀번호를 입력해주세요.</p>
+          <input type="password" id="logPwCheckInput" class="modal-input" placeholder="비밀번호" autocomplete="off">
+          <p id="logPwCheckError" class="modal-hint hidden" style="color:#ff6b6b;">비밀번호가 올바르지 않습니다.</p>
+        `,
+        buttons: [
+          { label:'취소', onClick: closeModal },
+          { label:'확인', primary:true, onClick: () => {
+              const val = document.getElementById('logPwCheckInput').value;
+              if (val === log.secret.pw){ openLogDetail(log); }
+              else { document.getElementById('logPwCheckError').classList.remove('hidden'); }
+            }
+          }
+        ]
+      });
+      setTimeout(() => {
+        const inp = document.getElementById('logPwCheckInput');
+        if (inp){
+          inp.focus();
+          inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') modalActions.lastChild.click(); });
+        }
+      }, 0);
+    } else {
+      openLogDetail(log);
+    }
+  }
+
+  logList.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('[data-action="edit-log"]');
+    const delBtn  = e.target.closest('[data-action="delete-log"]');
+    const openRow = e.target.closest('[data-action="open-log"]');
+
+    if (editBtn){
+      if (!isAdmin) return;
+      const log = data.logs.find(l => l.id === editBtn.dataset.id);
+      if (log) openLogForm(log);
+      return;
+    }
+    if (delBtn){
+      if (!isAdmin) return;
+      if (!confirm('이 글을 삭제할까요?')) return;
+      data.logs = data.logs.filter(l => l.id !== delBtn.dataset.id);
+      saveData(); renderLogList();
+      return;
+    }
+    if (openRow){
+      tryOpenLog(openRow.dataset.id);
+    }
+  });
+
+  // ?post=글ID 링크로 접속 시 자동으로 해당 글 열기
+  function checkPostShareParam(){
+    try{
+      const params = new URLSearchParams(window.location.search);
+      const postId = params.get('post');
+      if (postId && data.logs.some(l => l.id === postId)){
+        activate('log');
+        setTimeout(() => tryOpenLog(postId), 30);
+      }
+    }catch(e){ /* URL 파싱 불가 환경 - 무시 */ }
+  }
+
+
+  /* ============================================================
+     7. MEMO
+  ============================================================ */
+  const memoAddBtn = document.getElementById('memoAddBtn');
+  const memoGrid   = document.getElementById('memoGrid');
+
+  function renderMemoGrid(){
+    memoGrid.innerHTML = data.memos.length ? data.memos.map(m => `
+      <div class="memo-card" data-id="${m.id}">
+        <button class="memo-del admin-only" data-admin-display="inline-block" data-action="del-memo" data-id="${m.id}" type="button">×</button>
+        <span class="memo-tag">#${escapeHtml(m.tag)}</span>
+        <p class="memo-body">${escapeHtml(m.text)}</p>
+        <span class="memo-date">${escapeHtml(m.date)}</span>
+      </div>
+    `).join('') : '<p class="dim">등록된 메모가 없습니다.</p>';
+    document.querySelectorAll('#memoGrid .admin-only').forEach(el => {
+      el.style.display = isAdmin ? (el.dataset.adminDisplay || 'inline-block') : 'none';
+    });
+  }
+  memoGrid.addEventListener('click', (e) => {
+    const del = e.target.closest('[data-action="del-memo"]');
+    if (!del) return;
+    if (!isAdmin) return;
+    if (!confirm('메모를 삭제할까요?')) return;
+    data.memos = data.memos.filter(m => m.id !== del.dataset.id);
+    saveData(); renderMemoGrid();
+  });
+  memoAddBtn.addEventListener('click', () => {
+    if (!isAdmin) return;
+    openModal({
+      title:'▓ 메모 추가',
+      bodyHTML:`
+        <input type="text" id="memoFormTag" class="modal-input" placeholder="태그 (예: 생각)">
+        <textarea id="memoFormText" class="modal-input modal-textarea" rows="3" placeholder="메모 내용"></textarea>
+      `,
+      buttons:[
+        { label:'취소', onClick: closeModal },
+        { label:'추가', primary:true, onClick: () => {
+            if (!isAdmin) return;
+            const tag = document.getElementById('memoFormTag').value.trim() || '메모';
+            const text = document.getElementById('memoFormText').value.trim();
+            if (!text) return;
+            data.memos.unshift({ id:uid(), tag, text, date: todayDot() });
+            saveData(); renderMemoGrid(); closeModal();
+          }
+        }
+      ]
+    });
+  });
+
+  /* ============================================================
+     8. STORY
+  ============================================================ */
+  const storyLineTabs      = document.getElementById('storyLineTabs');
+  const storyLineManageBtn = document.getElementById('storyLineManageBtn');
+  const storyEntryAddBtn   = document.getElementById('storyEntryAddBtn');
+  const storyTimeline      = document.getElementById('storyTimeline');
+
+  function currentStoryLine(){
+    return data.story.lines.find(l => l.id === data.story.activeLine) || data.story.lines[0];
+  }
+
+  function renderStoryLineTabs(){
+    storyLineTabs.innerHTML = data.story.lines.length ? data.story.lines.map(l => `
+      <button class="cat-chip ${l.id === data.story.activeLine ? 'active' : ''}" data-line="${l.id}" type="button">
+        ${escapeHtml(l.name)}
+      </button>
+    `).join('') : '<span class="dim">등록된 라인이 없습니다.</span>';
+  }
+  storyLineTabs.addEventListener('click', (e) => {
+    const chip = e.target.closest('.cat-chip');
+    if (!chip) return;
+    data.story.activeLine = chip.dataset.line;
+    saveData(); renderStoryLineTabs(); renderStoryTimeline();
+  });
+
+  function renderStoryTimeline(){
+    const line = currentStoryLine();
+    if (!line){
+      storyTimeline.innerHTML = '<p class="dim story-empty">먼저 스토리 라인을 추가해주세요.</p>';
+      return;
+    }
+    const entries = line.entries.slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    storyTimeline.innerHTML = entries.length ? entries.map((it, idx) => `
+      <div class="story-row ${idx % 2 === 0 ? 'left' : 'right'}" data-id="${it.id}">
+        <span class="story-dot"></span>
+        <div class="story-entry-box" ${it.color ? `style="background:${escapeHtml(it.color)}"` : ''}>
+          <span class="story-entry-date">${escapeHtml(it.date || '')}</span>
+          <h4 class="story-entry-title">${escapeHtml(it.title)}</h4>
+          <div class="story-entry-content">${escapeHtml(it.content || '')}</div>
+          ${it.images && it.images.length ? `<div class="story-entry-images">${it.images.map(u => `<img src="${escapeHtml(u)}" alt="">`).join('')}</div>` : ''}
+          <div class="story-entry-actions admin-only" data-admin-display="flex">
+            <button class="mini-btn" data-action="edit-story-entry" data-id="${it.id}" type="button">수정</button>
+            <button class="mini-btn danger" data-action="del-story-entry" data-id="${it.id}" type="button">삭제</button>
+          </div>
+        </div>
+      </div>
+    `).join('') : '<p class="dim story-empty">등록된 항목이 없습니다.</p>';
+    document.querySelectorAll('#storyTimeline .admin-only').forEach(el => {
+      el.style.display = isAdmin ? (el.dataset.adminDisplay || 'inline-block') : 'none';
+    });
+  }
+
+  function openStoryEntryForm(existing){
+    if (!isAdmin) return;
+    const line = currentStoryLine();
+    if (!line){ alert('먼저 스토리 라인을 추가해주세요.'); return; }
+    openModal({
+      title: existing ? '▓ 항목 수정' : '▓ 항목 추가',
+      wide: true,
+      bodyHTML:`
+        <input type="text" id="storyEntryTitle" class="modal-input" placeholder="제목" value="${existing ? escapeHtml(existing.title) : ''}">
+        <input type="text" id="storyEntryDate" class="modal-input" placeholder="날짜 (예: 2026.07.06)" value="${existing ? escapeHtml(existing.date || '') : ''}">
+        <textarea id="storyEntryContent" class="modal-input modal-textarea" rows="5" placeholder="내용">${existing ? escapeHtml(existing.content || '') : ''}</textarea>
+        <textarea id="storyEntryImages" class="modal-input modal-textarea" rows="2" placeholder="이미지 URL (줄바꿈으로 구분)">${existing && existing.images ? existing.images.join('\n') : ''}</textarea>
+        <label class="modal-hint" style="display:flex; align-items:center; gap:8px;">
+          배경색
+          <input type="color" id="storyEntryColor" value="${existing && existing.color ? existing.color : '#100e0b'}">
+          <button type="button" class="mini-btn" id="storyEntryColorReset">기본값</button>
+        </label>
+      `,
+      buttons:[
+        { label:'취소', onClick: closeModal },
+        { label: existing ? '저장' : '추가', primary:true, onClick: () => {
+            if (!isAdmin) return;
+            const title = document.getElementById('storyEntryTitle').value.trim();
+            const date = document.getElementById('storyEntryDate').value.trim();
+            const content = document.getElementById('storyEntryContent').value.trim();
+            const images = document.getElementById('storyEntryImages').value.split('\n').map(s => s.trim()).filter(Boolean);
+            const colorInput = document.getElementById('storyEntryColor');
+            const color = colorInput.dataset.cleared === '1' ? '' : colorInput.value;
+            if (!title) return;
+            if (existing){
+              existing.title = title; existing.date = date; existing.content = content;
+              existing.images = images; existing.color = color;
+            } else {
+              line.entries.push({ id:uid(), title, date, content, images, color });
+            }
+            saveData(); renderStoryTimeline(); closeModal();
+          }
+        }
+      ]
+    });
+    const resetBtn = document.getElementById('storyEntryColorReset');
+    resetBtn.addEventListener('click', () => {
+      const colorInput = document.getElementById('storyEntryColor');
+      colorInput.value = '#100e0b';
+      colorInput.dataset.cleared = '1';
+    });
+    document.getElementById('storyEntryColor').addEventListener('input', (e) => { e.target.dataset.cleared = '0'; });
+  }
+  storyEntryAddBtn.addEventListener('click', () => openStoryEntryForm(null));
+
+  storyTimeline.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('[data-action="edit-story-entry"]');
+    const delBtn  = e.target.closest('[data-action="del-story-entry"]');
+    if (editBtn){
+      if (!isAdmin) return;
+      const line = currentStoryLine();
+      const it = line && line.entries.find(i => i.id === editBtn.dataset.id);
+      if (it) openStoryEntryForm(it);
+      return;
+    }
+    if (delBtn){
+      if (!isAdmin) return;
+      if (!confirm('항목을 삭제할까요?')) return;
+      const line = currentStoryLine();
+      if (line) line.entries = line.entries.filter(i => i.id !== delBtn.dataset.id);
+      saveData(); renderStoryTimeline();
+      return;
+    }
+  });
+
+  /* ---------- 서사 라인(탭) 관리 ---------- */
+  function renderStoryLineManageBody(){
+    const lines = data.story.lines;
+    modalBody.innerHTML = `
+      <p class="modal-hint">스토리 라인을 추가·이름변경·삭제하거나 ↑↓ 버튼으로 순서를 바꿀 수 있습니다.</p>
+      <div id="storyLineManageList">
+        ${lines.map((l, i) => `
+          <div class="cat-manage-row">
+            <input type="text" class="mini-input story-line-manage-input" data-idx="${i}" value="${escapeHtml(l.name)}">
+            <button class="mini-btn" data-action="line-up" data-idx="${i}" type="button" ${i === 0 ? 'disabled' : ''}>↑</button>
+            <button class="mini-btn" data-action="line-down" data-idx="${i}" type="button" ${i === lines.length - 1 ? 'disabled' : ''}>↓</button>
+            <button class="mini-btn danger" data-action="line-del" data-idx="${i}" type="button">삭제</button>
+          </div>
+        `).join('') || '<p class="dim">등록된 라인이 없습니다.</p>'}
+      </div>
+      <div class="cat-manage-add-row">
+        <input type="text" id="storyLineNewInput" class="mini-input" placeholder="새 스토리 라인">
+        <button class="mini-btn" id="storyLineAddBtn" type="button">추가</button>
+      </div>
+    `;
+    const addBtn = document.getElementById('storyLineAddBtn');
+    const newInput = document.getElementById('storyLineNewInput');
+    addBtn.addEventListener('click', () => {
+      if (!isAdmin) return;
+      const val = newInput.value.trim();
+      if (!val) return;
+      const newLine = { id:uid(), name:val, entries:[] };
+      data.story.lines.push(newLine);
+      if (!data.story.activeLine) data.story.activeLine = newLine.id;
+      saveData(); renderStoryLineTabs(); renderStoryTimeline(); renderStoryLineManageBody();
+    });
+    newInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addBtn.click(); });
+  }
+
+  function openStoryLineManageModal(){
+    if (!isAdmin) return;
+    openModal({
+      title: '▓ 서사 라인 관리',
+      bodyHTML: '',
+      buttons: [ { label:'닫기', primary:true, onClick: closeModal } ]
+    });
+    renderStoryLineManageBody();
+  }
+  storyLineManageBtn.addEventListener('click', openStoryLineManageModal);
+
+  modalBody.addEventListener('click', (e) => {
+    const upBtn   = e.target.closest('[data-action="line-up"]');
+    const downBtn = e.target.closest('[data-action="line-down"]');
+    const delBtn  = e.target.closest('[data-action="line-del"]');
+    if (!(upBtn || downBtn || delBtn)) return;
+    if (!isAdmin) return;
+    const idx = parseInt((upBtn || downBtn || delBtn).dataset.idx, 10);
+    const lines = data.story.lines;
+    if (upBtn && idx > 0){
+      [lines[idx - 1], lines[idx]] = [lines[idx], lines[idx - 1]];
+    } else if (downBtn && idx < lines.length - 1){
+      [lines[idx + 1], lines[idx]] = [lines[idx], lines[idx + 1]];
+    } else if (delBtn){
+      if (!confirm('이 라인을 삭제할까요? 라인에 속한 항목도 함께 삭제됩니다.')) return;
+      const removed = lines.splice(idx, 1)[0];
+      if (removed && data.story.activeLine === removed.id){
+        data.story.activeLine = lines[0] ? lines[0].id : '';
+      }
+    }
+    saveData(); renderStoryLineTabs(); renderStoryTimeline(); renderStoryLineManageBody();
+  });
+
+  modalBody.addEventListener('change', (e) => {
+    const input = e.target.closest('.story-line-manage-input');
+    if (!input) return;
+    if (!isAdmin) return;
+    const idx = parseInt(input.dataset.idx, 10);
+    const line = data.story.lines[idx];
+    if (!line) return;
+    const newName = input.value.trim();
+    if (!newName){ input.value = line.name; return; }
+    line.name = newName;
+    saveData(); renderStoryLineTabs();
+  });
+
+  /* ============================================================
+     9. PROFILE
+  ============================================================ */
+  const PROFILE_SECTION_TITLES = {
+    image: '▓ 프로필 이미지',
+    quote: '▓ 명대사',
+    table: '▓ 기본 정보',
+    appearance: '▓ 외모',
+    personality: '▓ 성격',
+    ability: '▓ 능력',
+    story: '▓ 과거',
+    likes: '▓ 좋아하는 것',
+    dislikes: '▓ 싫어하는 것'
+  };
+
+  const profileSectionEls  = [ {}, {} ];   // profileSectionEls[cardIdx][type] = wrapper element (persists across reorders)
+  const profileImgState    = [ {}, {} ];   // per-card image viewport transform state
+  const profileImgLoaders  = [ null, null ];
+
+  function profileCard(idx){ return data.profile.cards[idx]; }
+  function clamp(v, min, max){ return Math.min(max, Math.max(min, v)); }
+
+  function applyAdminOnlyIn(container){
+    container.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = isAdmin ? (el.dataset.adminDisplay || 'inline-block') : 'none';
+    });
+  }
+
+  function updateProfileEditableState(){
+    document.querySelectorAll('#pane-profile .profile-editable').forEach(el => {
+      el.contentEditable = isAdmin ? 'true' : 'false';
+    });
+  }
+
+  function buildProfileSectionShell(cardIdx, type){
+    const wrap = document.createElement('div');
+    wrap.className = 'profile-section';
+    wrap.dataset.type = type;
+    wrap.innerHTML = `
+      <div class="profile-section-head">
+        <span class="profile-section-title">${PROFILE_SECTION_TITLES[type]}</span>
+        <div class="profile-section-order-btns admin-only" data-admin-display="flex">
+          <button class="mini-btn" type="button" data-action="prof-sec-up" data-card="${cardIdx}" data-type="${type}">↑</button>
+          <button class="mini-btn" type="button" data-action="prof-sec-down" data-card="${cardIdx}" data-type="${type}">↓</button>
+        </div>
+      </div>
+      <div class="profile-section-body" id="profSecBody-${type}-${cardIdx}"></div>
+    `;
+    return wrap;
+  }
+
+  function renderProfileCardShell(cardIdx){
+    const container = document.getElementById('profileSections-' + cardIdx);
+    container.innerHTML = '';
+    profileSectionEls[cardIdx] = {};
+    const card = profileCard(cardIdx);
+    card.order.forEach(type => {
+      const el = buildProfileSectionShell(cardIdx, type);
+      profileSectionEls[cardIdx][type] = el;
+      container.appendChild(el);
+    });
+    applyAdminOnlyIn(container);
+    renderProfileImageBody(cardIdx);
+    renderProfileQuoteBody(cardIdx);
+    renderProfileTableBody(cardIdx);
+    renderProfileFreeTextBody(cardIdx, 'appearance');
+    renderProfileFreeTextBody(cardIdx, 'personality');
+    renderProfileFreeTextBody(cardIdx, 'ability');
+    renderProfileFreeTextBody(cardIdx, 'story');
+    renderProfileTagsBody(cardIdx, 'likes');
+    renderProfileTagsBody(cardIdx, 'dislikes');
+  }
+
+  function moveProfileSection(cardIdx, type, direction){
+    const card = profileCard(cardIdx);
+    const idx = card.order.indexOf(type);
+    const swapIdx = idx + direction;
+    if (idx === -1 || swapIdx < 0 || swapIdx >= card.order.length) return;
+    [card.order[idx], card.order[swapIdx]] = [card.order[swapIdx], card.order[idx]];
+    saveData();
+    const container = document.getElementById('profileSections-' + cardIdx);
+    card.order.forEach(t => {
+      const el = profileSectionEls[cardIdx][t];
+      if (el) container.appendChild(el); // 기존 노드를 이동만 시켜 이미지/입력 상태를 보존
+    });
+  }
+
+  /* ---- 프로필 이미지 (HOME 커버와 동일한 확대/이동 방식) ---- */
+  function renderProfileImageBody(cardIdx){
+    const body = document.getElementById(`profSecBody-image-${cardIdx}`);
+    body.innerHTML = `
+      <div class="image-slot">
+        <button class="img-change-btn admin-only" data-admin-display="inline-block" type="button" data-action="prof-img-change" data-card="${cardIdx}">이미지 변경</button>
+        <div class="image-viewport profile-viewport" id="profImgViewport-${cardIdx}">
+          <img id="profImg-${cardIdx}" alt="" draggable="false">
+          <div class="image-placeholder admin-only" data-admin-display="flex" id="profImgPh-${cardIdx}">
+            <span class="ph-main">+ 클릭하여 이미지 추가</span>
+            <span class="ph-sub">Imgur 링크를 붙여넣어 이미지를 삽입할 수 있습니다</span>
+          </div>
+        </div>
+      </div>
+    `;
+    applyAdminOnlyIn(body);
+    setupProfileImageViewport(cardIdx);
+    const card = profileCard(cardIdx);
+    if (card.image) profileImgLoaders[cardIdx](card.image, true);
+  }
+
+  function setupProfileImageViewport(cardIdx){
+    const viewport = document.getElementById(`profImgViewport-${cardIdx}`);
+    const img = document.getElementById(`profImg-${cardIdx}`);
+    const placeholder = document.getElementById(`profImgPh-${cardIdx}`);
+    const changeBtn = viewport.parentElement.querySelector('[data-action="prof-img-change"]');
+
+    const st = profileImgState[cardIdx] = { scale:1, posX:0, posY:0, natW:0, natH:0, dragging:false, sx:0, sy:0, spx:0, spy:0 };
+
+    function applyTransform(){
+      img.style.transform = `translate(${st.posX}px, ${st.posY}px) scale(${st.scale})`;
+    }
+    function fit(){
+      const vw = viewport.clientWidth, vh = viewport.clientHeight;
+      if (!vw || !vh || !st.natW || !st.natH) return;
+      st.scale = Math.max(vw / st.natW, vh / st.natH);
+      st.posX = (vw - st.natW * st.scale) / 2;
+      st.posY = (vh - st.natH * st.scale) / 2;
+      applyTransform();
+    }
+    st.fit = fit;
+
+    function load(url, skipSave){
+      img.onload = () => {
+        st.natW = img.naturalWidth; st.natH = img.naturalHeight;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+        viewport.classList.add('has-image');
+        fit();
+        if (!skipSave){ profileCard(cardIdx).image = url; saveData(); }
+      };
+      img.onerror = () => { if (!skipSave) alert('이미지를 불러올 수 없습니다. 링크를 다시 확인해주세요.'); };
+      img.src = url;
+    }
+    profileImgLoaders[cardIdx] = load;
+
+    placeholder.addEventListener('click', () => {
+      if (!isAdmin) return;
+      openImageUrlModal('▓ 프로필 이미지 삽입', '', (url) => load(url));
+    });
+    if (changeBtn){
+      changeBtn.addEventListener('click', () => {
+        if (!isAdmin) return;
+        openImageUrlModal('▓ 프로필 이미지 변경', profileCard(cardIdx).image, (url) => load(url));
+      });
+    }
+
+    viewport.addEventListener('wheel', (e) => {
+      if (!st.natW) return;
+      e.preventDefault();
+      const rect = viewport.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      const minScale = Math.max(rect.width / st.natW, rect.height / st.natH) * 0.6;
+      const maxScale = minScale * 8;
+      const factor = e.deltaY < 0 ? 1.08 : 1 / 1.08;
+      const newScale = clamp(st.scale * factor, minScale, maxScale);
+      st.posX = mx - (mx - st.posX) * (newScale / st.scale);
+      st.posY = my - (my - st.posY) * (newScale / st.scale);
+      st.scale = newScale;
+      applyTransform();
+    }, { passive:false });
+
+    viewport.addEventListener('mousedown', (e) => {
+      if (!st.natW) return;
+      st.dragging = true; st.sx = e.clientX; st.sy = e.clientY; st.spx = st.posX; st.spy = st.posY;
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!st.dragging) return;
+      st.posX = st.spx + (e.clientX - st.sx);
+      st.posY = st.spy + (e.clientY - st.sy);
+      applyTransform();
+    });
+    window.addEventListener('mouseup', () => { st.dragging = false; });
+    viewport.addEventListener('touchstart', (e) => {
+      if (!st.natW || e.touches.length !== 1) return;
+      st.dragging = true; st.sx = e.touches[0].clientX; st.sy = e.touches[0].clientY; st.spx = st.posX; st.spy = st.posY;
+    }, { passive:true });
+    viewport.addEventListener('touchmove', (e) => {
+      if (!st.dragging || e.touches.length !== 1) return;
+      st.posX = st.spx + (e.touches[0].clientX - st.sx);
+      st.posY = st.spy + (e.touches[0].clientY - st.sy);
+      applyTransform();
+    }, { passive:true });
+    viewport.addEventListener('touchend', () => { st.dragging = false; });
+  }
+
+  window.addEventListener('resize', () => {
+    [0, 1].forEach(i => { if (profileImgState[i] && profileImgState[i].natW) profileImgState[i].fit(); });
+  });
+
+  /* ---- 명대사 ---- */
+  function renderProfileQuoteBody(cardIdx){
+    const body = document.getElementById(`profSecBody-quote-${cardIdx}`);
+    body.innerHTML = `<p class="profile-quote profile-editable" contenteditable="false" data-profile-field="quote" data-card="${cardIdx}"></p>`;
+    body.querySelector('[data-profile-field="quote"]').textContent = profileCard(cardIdx).quote || '';
+    applyAdminOnlyIn(body);
+    updateProfileEditableState();
+  }
+
+  /* ---- 외모 / 성격 / 능력 / 서사 (자유 텍스트) ---- */
+  function renderProfileFreeTextBody(cardIdx, field){
+    const body = document.getElementById(`profSecBody-${field}-${cardIdx}`);
+    body.innerHTML = `<p class="profile-freetext profile-editable" contenteditable="false" data-profile-field="${field}" data-card="${cardIdx}"></p>`;
+    body.querySelector('[data-profile-field]').textContent = profileCard(cardIdx)[field] || '';
+    applyAdminOnlyIn(body);
+    updateProfileEditableState();
+  }
+
+  /* ---- 기본 정보 표 ---- */
+  function renderProfileTableBody(cardIdx){
+    const body = document.getElementById(`profSecBody-table-${cardIdx}`);
+    const card = profileCard(cardIdx);
+    const lw = card.tableLabelWidth || 76;
+    body.innerHTML = `
+      <div class="profile-table-wrap">
+        <table class="profile-table">
+          <colgroup><col style="width:${lw}px"><col><col style="width:24px"></colgroup>
+          <tbody>
+            ${card.table.map(row => `
+              <tr data-row="${row.id}">
+                <td class="label-cell profile-editable" contenteditable="false" data-table-key="label" data-row="${row.id}" data-card="${cardIdx}"></td>
+                <td class="profile-editable" contenteditable="false" data-table-key="value" data-row="${row.id}" data-card="${cardIdx}"></td>
+                <td class="admin-only" data-admin-display="table-cell"><span class="profile-table-row-del" data-action="prof-row-del" data-card="${cardIdx}" data-row="${row.id}">×</span></td>
+              </tr>
+            `).join('') || `<tr><td colspan="3" class="dim" style="border-bottom:none;">등록된 항목이 없습니다.</td></tr>`}
+          </tbody>
+        </table>
+        <div class="profile-table-resizer admin-only" data-admin-display="block" style="left:${lw}px;"></div>
+      </div>
+      <button class="mini-btn admin-only" data-admin-display="inline-block" type="button" data-action="prof-row-add" data-card="${cardIdx}" style="margin-top:8px;">+ 행 추가</button>
+    `;
+    card.table.forEach(row => {
+      const tr = body.querySelector(`tr[data-row="${row.id}"]`);
+      if (!tr) return;
+      tr.querySelector('[data-table-key="label"]').textContent = row.label || '';
+      tr.querySelector('[data-table-key="value"]').textContent = row.value || '';
+    });
+    applyAdminOnlyIn(body);
+    updateProfileEditableState();
+    setupProfileTableResizer(cardIdx, body);
+  }
+
+  function setupProfileTableResizer(cardIdx, body){
+    const resizer = body.querySelector('.profile-table-resizer');
+    if (!resizer) return;
+    resizer.addEventListener('mousedown', (e) => {
+      if (!isAdmin) return;
+      e.preventDefault();
+      const card = profileCard(cardIdx);
+      const startX = e.clientX;
+      const startW = card.tableLabelWidth || 76;
+      const col = body.querySelector('colgroup col:first-child');
+      function onMove(ev){
+        const w = clamp(startW + (ev.clientX - startX), 40, 260);
+        if (col) col.style.width = w + 'px';
+        resizer.style.left = w + 'px';
+      }
+      function onUp(ev){
+        const w = clamp(startW + (ev.clientX - startX), 40, 260);
+        card.tableLabelWidth = w;
+        saveData();
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      }
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    });
+  }
+
+  /* ---- 좋아하는 것 / 싫어하는 것 (태그) ---- */
+  function renderProfileTagsBody(cardIdx, field){
+    const body = document.getElementById(`profSecBody-${field}-${cardIdx}`);
+    const tags = profileCard(cardIdx)[field] || [];
+    body.innerHTML = `
+      <div class="profile-tags">
+        ${tags.map((t, i) => `
+          <span class="profile-tag">
+            <span>${escapeHtml(t)}</span>
+            <button type="button" class="admin-only" data-admin-display="inline" data-action="prof-tag-del" data-card="${cardIdx}" data-field="${field}" data-idx="${i}">×</button>
+          </span>
+        `).join('') || '<span class="dim" style="font-size:12px;">등록된 항목이 없습니다.</span>'}
+      </div>
+      <div class="profile-tag-add-row admin-only" data-admin-display="flex">
+        <input type="text" class="mini-input" id="profTagInput-${field}-${cardIdx}" placeholder="추가할 항목 입력 후 Enter">
+        <button class="mini-btn" type="button" data-action="prof-tag-add" data-card="${cardIdx}" data-field="${field}">추가</button>
+      </div>
+    `;
+    applyAdminOnlyIn(body);
+    const input = document.getElementById(`profTagInput-${field}-${cardIdx}`);
+    const addBtn = body.querySelector('[data-action="prof-tag-add"]');
+    function addTag(){
+      if (!isAdmin) return;
+      const val = input.value.trim();
+      if (!val) return;
+      profileCard(cardIdx)[field].push(val);
+      saveData();
+      renderProfileTagsBody(cardIdx, field);
+    }
+    if (addBtn) addBtn.addEventListener('click', addTag);
+    if (input) input.addEventListener('keydown', (e) => { if (e.key === 'Enter') addTag(); });
+  }
+
+  /* ---- 카드 헤더(이름/배경색) + 초기 빌드 ---- */
+  const profilePane = document.getElementById('pane-profile');
+
+  function renderProfile(){
+    [0, 1].forEach(cardIdx => {
+      const card = profileCard(cardIdx);
+      const nameEl = document.getElementById('profileName-' + cardIdx);
+      if (nameEl) nameEl.textContent = card.name || '';
+      const cardEl = document.getElementById('profileCard-' + cardIdx);
+      if (cardEl) cardEl.style.background = card.bg || '';
+      const bgPicker = document.querySelector(`.profile-bg-picker[data-card="${cardIdx}"]`);
+      if (bgPicker) bgPicker.value = card.bg || '#100e0b';
+    });
+    if (!profileSectionEls[0].image){
+      [0, 1].forEach(cardIdx => renderProfileCardShell(cardIdx));
+      document.querySelectorAll('.profile-bg-picker').forEach(inp => {
+        inp.addEventListener('input', () => {
+          if (!isAdmin) return;
+          const idx = parseInt(inp.dataset.card, 10);
+          profileCard(idx).bg = inp.value;
+          saveData();
+          const cardEl = document.getElementById('profileCard-' + idx);
+          if (cardEl) cardEl.style.background = inp.value;
+        });
+      });
+    }
+    updateProfileEditableState();
+  }
+
+  profilePane.addEventListener('click', (e) => {
+    const upBtn      = e.target.closest('[data-action="prof-sec-up"]');
+    const downBtn    = e.target.closest('[data-action="prof-sec-down"]');
+    const rowAddBtn  = e.target.closest('[data-action="prof-row-add"]');
+    const rowDelBtn  = e.target.closest('[data-action="prof-row-del"]');
+    const tagDelBtn  = e.target.closest('[data-action="prof-tag-del"]');
+    if (!(upBtn || downBtn || rowAddBtn || rowDelBtn || tagDelBtn)) return;
+    if (!isAdmin) return;
+
+    if (upBtn){ moveProfileSection(parseInt(upBtn.dataset.card, 10), upBtn.dataset.type, -1); return; }
+    if (downBtn){ moveProfileSection(parseInt(downBtn.dataset.card, 10), downBtn.dataset.type, 1); return; }
+
+    if (rowAddBtn){
+      const idx = parseInt(rowAddBtn.dataset.card, 10);
+      profileCard(idx).table.push({ id: uid(), label: '', value: '' });
+      saveData(); renderProfileTableBody(idx);
+      return;
+    }
+    if (rowDelBtn){
+      if (!confirm('이 행을 삭제할까요?')) return;
+      const idx = parseInt(rowDelBtn.dataset.card, 10);
+      const rowId = rowDelBtn.dataset.row;
+      const card = profileCard(idx);
+      card.table = card.table.filter(r => r.id !== rowId);
+      saveData(); renderProfileTableBody(idx);
+      return;
+    }
+    if (tagDelBtn){
+      const idx = parseInt(tagDelBtn.dataset.card, 10);
+      const field = tagDelBtn.dataset.field;
+      const tagIdx = parseInt(tagDelBtn.dataset.idx, 10);
+      profileCard(idx)[field].splice(tagIdx, 1);
+      saveData(); renderProfileTagsBody(idx, field);
+      return;
+    }
+  });
+
+  profilePane.addEventListener('focusout', (e) => {
+    const el = e.target;
+    if (!el.classList || !el.classList.contains('profile-editable')) return;
+    if (!isAdmin) return;
+    if (el.dataset.profileField){
+      const idx = parseInt(el.dataset.card, 10);
+      profileCard(idx)[el.dataset.profileField] = el.textContent.trim();
+      saveData();
+    } else if (el.dataset.tableKey){
+      const idx = parseInt(el.dataset.card, 10);
+      const row = profileCard(idx).table.find(r => r.id === el.dataset.row);
+      if (row) row[el.dataset.tableKey] = el.textContent.trim();
+      saveData();
+    }
+  });
+
+  /* ============================================================
+     10. GALLERY
+  ============================================================ */
+  const galleryGrid = document.getElementById('galleryGrid');
+
+  /* ---------- 라이트박스 ---------- */
+  const lightboxOverlay = document.getElementById('lightboxOverlay');
+  const lightboxImg     = document.getElementById('lightboxImg');
+  const lightboxClose   = document.getElementById('lightboxClose');
+
+  function openLightbox(url){
+    lightboxImg.src = url;
+    lightboxOverlay.classList.remove('hidden');
+  }
+  function closeLightbox(){
+    lightboxOverlay.classList.add('hidden');
+    lightboxImg.src = '';
+  }
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightboxOverlay.addEventListener('click', (e) => { if (e.target === lightboxOverlay) closeLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !lightboxOverlay.classList.contains('hidden')) closeLightbox();
+  });
+
+  /* ---------- LOG의 "PHOTO GALLERY" 글에서 이미지 자동 집계 ---------- */
+  function collectAutoGalleryPhotos(){
+    const items = [];
+    data.logs.forEach(l => {
+      if (l.type !== 'photo') return;
+      if (l.secret && l.secret.on) return; // 비밀글 이미지는 갤러리에 노출하지 않음
+      (l.images || []).forEach((url, i) => {
+        items.push({ logId: l.id, url, key: `log-${l.id}-${i}` });
+      });
+    });
+    return items;
+  }
+
+  function renderGalleryGrid(){
+    const autoItems = collectAutoGalleryPhotos();
+    const manualItems = data.gallery;
+
+    const addTileHTML = `
+      <div class="gallery-add-tile admin-only" data-admin-display="flex" id="galleryAddTile">
+        <span class="plus">+</span>
+        <span>이미지 추가</span>
+      </div>
+    `;
+
+    const autoHTML = autoItems.map(item => `
+      <div class="gallery-item" data-source="log" data-log-id="${item.logId}" title="글 보러가기">
+        <img src="${escapeHtml(item.url)}" alt="" draggable="false">
+        <span class="gallery-badge">LOG</span>
+      </div>
+    `).join('');
+
+    const manualHTML = manualItems.map(g => `
+      <div class="gallery-item" data-source="manual" data-id="${g.id}">
+        <img src="${escapeHtml(g.url)}" alt="" draggable="false">
+        <button class="gallery-del admin-only" data-admin-display="inline-block" data-action="del-gallery" data-id="${g.id}" type="button">×</button>
+      </div>
+    `).join('');
+
+    const bodyHTML = autoHTML + manualHTML;
+    galleryGrid.innerHTML = addTileHTML + (bodyHTML || (isAdmin ? '' : '<p class="dim">등록된 이미지가 없습니다.</p>'));
+
+    document.querySelectorAll('#galleryGrid .admin-only').forEach(el => {
+      el.style.display = isAdmin ? (el.dataset.adminDisplay || 'inline-block') : 'none';
+    });
+  }
+
+  galleryGrid.addEventListener('click', (e) => {
+    const addTile = e.target.closest('#galleryAddTile');
+    if (addTile){
+      if (!isAdmin) return;
+      openImageUrlModal('▓ 갤러리 이미지 추가', '', (url) => {
+        data.gallery.unshift({ id:uid(), url });
+        saveData(); renderGalleryGrid();
+      });
+      return;
+    }
+
+    const del = e.target.closest('[data-action="del-gallery"]');
+    if (del){
+      if (!isAdmin) return;
+      if (!confirm('이미지를 삭제할까요?')) return;
+      data.gallery = data.gallery.filter(g => g.id !== del.dataset.id);
+      saveData(); renderGalleryGrid();
+      return;
+    }
+
+    const logItem = e.target.closest('.gallery-item[data-source="log"]');
+    if (logItem){
+      tryOpenLog(logItem.dataset.logId);
+      return;
+    }
+
+    const manualItem = e.target.closest('.gallery-item[data-source="manual"]');
+    if (manualItem){
+      const g = data.gallery.find(x => x.id === manualItem.dataset.id);
+      if (!g) return;
+      if (isAdmin){
+        openImageUrlModal('▓ 갤러리 이미지 URL 수정', g.url, (url) => {
+          g.url = url;
+          saveData(); renderGalleryGrid();
+        });
+      } else {
+        openLightbox(g.url);
+      }
+      return;
+    }
+  });
+
+  /* ============================================================
+     11. SETTINGS - 비밀번호 변경
+  ============================================================ */
+  const settingsCurrentPw = document.getElementById('settingsCurrentPw');
+  const settingsNewPw     = document.getElementById('settingsNewPw');
+  const settingsNewPw2    = document.getElementById('settingsNewPw2');
+  const settingsPwSaveBtn = document.getElementById('settingsPwSaveBtn');
+  const settingsPwMsg     = document.getElementById('settingsPwMsg');
+
+  settingsPwSaveBtn.addEventListener('click', () => {
+    if (!isAdmin) return;
+    const cur = settingsCurrentPw.value;
+    const nw = settingsNewPw.value;
+    const nw2 = settingsNewPw2.value;
+    settingsPwMsg.style.color = '';
+    if (cur !== data.adminPw){ settingsPwMsg.textContent = '현재 비밀번호가 올바르지 않습니다.'; settingsPwMsg.style.color = '#ff6b6b'; return; }
+    if (!nw || nw.length < 2){ settingsPwMsg.textContent = '새 비밀번호를 2자 이상 입력해주세요.'; settingsPwMsg.style.color = '#ff6b6b'; return; }
+    if (nw !== nw2){ settingsPwMsg.textContent = '새 비밀번호가 일치하지 않습니다.'; settingsPwMsg.style.color = '#ff6b6b'; return; }
+    data.adminPw = nw;
+    saveData();
+    settingsPwMsg.textContent = '비밀번호가 변경되었습니다.';
+    settingsPwMsg.style.color = 'var(--orange-2)';
+    settingsCurrentPw.value = ''; settingsNewPw.value = ''; settingsNewPw2.value = '';
+  });
+
+  /* ============================================================
+     12. SETTINGS - GitHub Gist 동기화
+     ------------------------------------------------------------
+     - 토큰/Gist ID는 localStorage에 별도 키로 저장 (data 객체에는 절대 포함하지 않음)
+       → saveData()가 저장하는 JSON에도, Gist에 업로드되는 내용에도 토큰이 섞이지 않음
+     - 관리자 로그인 상태에서 saveData()가 호출될 때마다 1.8초 디바운스로 자동 백업
+  ============================================================ */
+  const GIST_TOKEN_KEY = 'pa_gist_token';   // 로컬 전용 - Gist 내용에 포함되지 않음
+  const GIST_ID_KEY    = 'pa_gist_id';      // 로컬 전용 - Gist 내용에 포함되지 않음
+  const GIST_FILENAME  = 'pa_site_data.json';
+  const DEFAULT_GIST_ID = '62c89cde824bac03125f41d4323f5493';
+
+  const gistTokenInput  = document.getElementById('gistTokenInput');
+  const gistIdInput     = document.getElementById('gistIdInput');
+  const gistSaveBtn     = document.getElementById('gistSaveBtn');
+  const gistLoadBtn     = document.getElementById('gistLoadBtn');
+  const gistSyncStatus  = document.getElementById('gistSyncStatus');
+
+  function loadGistCreds(){
+    let token = '', gistId = '';
+    try{
+      token = localStorage.getItem(GIST_TOKEN_KEY) || '';
+      gistId = localStorage.getItem(GIST_ID_KEY) || '';
+    }catch(e){ /* 사용 불가 환경 - 무시 */ }
+    if (!gistId) gistId = DEFAULT_GIST_ID;
+    if (gistTokenInput) gistTokenInput.value = token;
+    if (gistIdInput) gistIdInput.value = gistId;
+  }
+  function saveGistCreds(){
+    try{
+      localStorage.setItem(GIST_TOKEN_KEY, (gistTokenInput.value || '').trim());
+      localStorage.setItem(GIST_ID_KEY, (gistIdInput.value || '').trim());
+    }catch(e){ /* 사용 불가 환경 - 무시 */ }
+  }
+  function getGistCreds(){
+    return {
+      token:  gistTokenInput ? gistTokenInput.value.trim()  : '',
+      gistId: gistIdInput    ? gistIdInput.value.trim()     : ''
+    };
+  }
+  if (gistTokenInput) gistTokenInput.addEventListener('change', saveGistCreds);
+  if (gistIdInput)    gistIdInput.addEventListener('change', saveGistCreds);
+  loadGistCreds();
+
+  function gistErrorMessage(status){
+    switch (status){
+      case 401: return 'Gist 동기화 실패: 토큰이 올바르지 않습니다. (401)';
+      case 403: return 'Gist 동기화 실패: 권한이 없거나 요청 한도를 초과했습니다. (403)';
+      case 404: return 'Gist 동기화 실패: 해당 Gist ID를 찾을 수 없습니다. (404)';
+      case 429: return 'Gist 동기화 실패: 요청이 너무 많습니다. 잠시 후 다시 시도해주세요. (429)';
+      default:  return `Gist 동기화 실패: 알 수 없는 오류가 발생했습니다. (${status})`;
+    }
+  }
+
+  async function saveToGist(showFeedback){
+    const { token, gistId } = getGistCreds();
+    if (!token || !gistId){
+      if (showFeedback) toast('토큰과 Gist ID를 모두 입력해주세요.', 'error');
+      return false;
+    }
+    try{
+      if (gistSyncStatus) gistSyncStatus.textContent = 'Gist에 저장하는 중...';
+      const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          files: { [GIST_FILENAME]: { content: JSON.stringify(data, null, 2) } }
+        })
+      });
+      if (!res.ok){
+        const msg = gistErrorMessage(res.status);
+        if (showFeedback) toast(msg, 'error');
+        if (gistSyncStatus) gistSyncStatus.textContent = msg;
+        return false;
+      }
+      const okMsg = '마지막 저장: ' + new Date().toLocaleTimeString();
+      if (showFeedback) toast('Gist에 저장되었습니다.', 'success');
+      if (gistSyncStatus) gistSyncStatus.textContent = okMsg;
+      return true;
+    }catch(e){
+      const msg = 'Gist 동기화 실패: 네트워크 오류가 발생했습니다.';
+      if (showFeedback) toast(msg, 'error');
+      if (gistSyncStatus) gistSyncStatus.textContent = msg;
+      return false;
+    }
+  }
+
+  async function loadFromGist(){
+    const { token, gistId } = getGistCreds();
+    if (!gistId){
+      toast('Gist ID를 입력해주세요.', 'error');
+      return;
+    }
+    try{
+      if (gistSyncStatus) gistSyncStatus.textContent = 'Gist에서 불러오는 중...';
+      const headers = { 'Accept': 'application/vnd.github+json' };
+      if (token) headers['Authorization'] = `token ${token}`;
+      const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, { headers });
+      if (!res.ok){
+        const msg = gistErrorMessage(res.status);
+        toast(msg, 'error');
+        if (gistSyncStatus) gistSyncStatus.textContent = msg;
+        return;
+      }
+      const json = await res.json();
+      const file = json.files && json.files[GIST_FILENAME];
+      if (!file){
+        const msg = 'Gist 안에서 데이터 파일을 찾을 수 없습니다.';
+        toast(msg, 'error');
+        if (gistSyncStatus) gistSyncStatus.textContent = msg;
+        return;
+      }
+      let content = file.content;
+      // 1MB 초과로 잘린 파일은 raw_url로 전체 내용을 다시 요청
+      if (file.truncated && file.raw_url){
+        const rawRes = await fetch(file.raw_url);
+        if (!rawRes.ok){
+          const msg = gistErrorMessage(rawRes.status);
+          toast(msg, 'error');
+          if (gistSyncStatus) gistSyncStatus.textContent = msg;
+          return;
+        }
+        content = await rawRes.text();
+      }
+      const parsed = JSON.parse(content);
+      data = Object.assign(deepClone(DEFAULT_DATA), parsed);
+      saveDataLocalOnly();
+      migrateStoryData();
+      renderHome();
+      renderLogCats(); renderLogList();
+      renderMemoGrid();
+      renderStoryLineTabs(); renderStoryTimeline();
+      renderProfile();
+      renderGalleryGrid();
+      applyAdminUI();
+      toast('Gist에서 데이터를 불러왔습니다.', 'success');
+      if (gistSyncStatus) gistSyncStatus.textContent = '마지막 불러오기: ' + new Date().toLocaleTimeString();
+    }catch(e){
+      const msg = 'Gist 동기화 실패: 데이터를 불러오는 중 오류가 발생했습니다.';
+      toast(msg, 'error');
+      if (gistSyncStatus) gistSyncStatus.textContent = msg;
+    }
+  }
+
+  if (gistSaveBtn) gistSaveBtn.addEventListener('click', () => { saveGistCreds(); saveToGist(true); });
+  if (gistLoadBtn) gistLoadBtn.addEventListener('click', () => { saveGistCreds(); loadFromGist(); });
+
+  /* ---- 자동 백업: 관리자 로그인 상태에서 편집(saveData 호출) 시 1.8초 디바운스 ---- */
+  let gistAutoBackupTimer = null;
+  function scheduleGistAutoBackup(){
+    if (!isAdmin) return;
+    const { token, gistId } = getGistCreds();
+    if (!token || !gistId) return;
+    if (gistSyncStatus) gistSyncStatus.textContent = '자동 백업 대기 중...';
+    clearTimeout(gistAutoBackupTimer);
+    gistAutoBackupTimer = setTimeout(() => { saveToGist(false); }, 1800);
+  }
+
+  // saveData()는 localStorage 저장용 원본 함수를 그대로 유지(saveDataLocalOnly)하면서,
+  // 이후 호출부터는 자동 Gist 백업 예약까지 함께 수행하도록 래핑합니다.
+  const saveDataLocalOnly = saveData;
+  saveData = function(){
+    saveDataLocalOnly();
+    scheduleGistAutoBackup();
+  };
+
+  /* ============================================================
+     13. 초기 렌더링
+  ============================================================ */
+  renderHome();
+  renderLogCats();
+  renderLogList();
+  renderMemoGrid();
+  renderStoryLineTabs();
+  renderStoryTimeline();
+  renderProfile();
+  renderGalleryGrid();
+  applyAdminUI();
+  checkPostShareParam();
+});
+</script>
+</body>
+</html>
