@@ -845,9 +845,9 @@ document.addEventListener('DOMContentLoaded', () => {
       bg: '',
       name: '이름 / 닉네임',
       image: '',
-      imgScale: null,
-      imgPosX: null,
-      imgPosY: null,
+      imgRelScale: null,
+      imgFx: null,
+      imgFy: null,
       quote: '',
       tableLabelWidth: 76,
       table: [
@@ -2333,20 +2333,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const placeholder = document.getElementById(`profImgPh-${cardIdx}`);
     const changeBtn = viewport.parentElement.querySelector('[data-action="prof-img-change"]');
 
-    const st = profileImgState[cardIdx] = { scale:1, posX:0, posY:0, natW:0, natH:0, dragging:false, sx:0, sy:0, spx:0, spy:0 };
+    // relScale/fx/fy는 뷰포트 크기(모바일/데스크톱)에 관계없이 동일한 확대/구도를 재현하기 위한
+    // "상대" 좌표계입니다. relScale=1, fx=fy=0.5 이면 기본 cover-fit(중앙 정렬) 상태입니다.
+    const st = profileImgState[cardIdx] = {
+      scale:1, posX:0, posY:0, natW:0, natH:0,
+      relScale:1, fx:0.5, fy:0.5,
+      dragging:false, sx:0, sy:0, spx:0, spy:0
+    };
 
     function applyTransform(){
       img.style.transform = `translate(${st.posX}px, ${st.posY}px) scale(${st.scale})`;
     }
-    function fit(){
+    // 현재 뷰포트 크기(vw, vh) 기준으로 relScale/fx/fy로부터 절대 scale/posX/posY를 재계산합니다.
+    // 뷰포트 폭이 달라지는 모바일 화면에서도 항상 올바르게 다시 맞춰집니다.
+    function reflow(){
       const vw = viewport.clientWidth, vh = viewport.clientHeight;
       if (!vw || !vh || !st.natW || !st.natH) return;
-      st.scale = Math.max(vw / st.natW, vh / st.natH);
-      st.posX = (vw - st.natW * st.scale) / 2;
-      st.posY = (vh - st.natH * st.scale) / 2;
+      const baseScale = Math.max(vw / st.natW, vh / st.natH);
+      st.scale = baseScale * st.relScale;
+      st.posX = vw / 2 - st.fx * st.natW * st.scale;
+      st.posY = vh / 2 - st.fy * st.natH * st.scale;
       applyTransform();
     }
+    // 현재 절대 scale/posX/posY를 뷰포트 독립적인 relScale/fx/fy로 변환해 st에 반영합니다.
+    function syncRelFromAbsolute(){
+      const vw = viewport.clientWidth, vh = viewport.clientHeight;
+      if (!vw || !vh || !st.natW || !st.natH || !st.scale) return;
+      const baseScale = Math.max(vw / st.natW, vh / st.natH);
+      st.relScale = st.scale / baseScale;
+      st.fx = (vw / 2 - st.posX) / (st.natW * st.scale);
+      st.fy = (vh / 2 - st.posY) / (st.natH * st.scale);
+    }
+    function fit(){
+      st.relScale = 1; st.fx = 0.5; st.fy = 0.5;
+      reflow();
+    }
     st.fit = fit;
+    st.reflow = reflow;
 
     function load(url, skipSave){
       img.onload = () => {
@@ -2355,15 +2378,15 @@ document.addEventListener('DOMContentLoaded', () => {
         placeholder.style.display = 'none';
         viewport.classList.add('has-image');
         const card = profileCard(cardIdx);
-        if (skipSave && card.imgScale != null && card.imgPosX != null && card.imgPosY != null){
-          st.scale = card.imgScale; st.posX = card.imgPosX; st.posY = card.imgPosY;
-          applyTransform();
+        if (skipSave && card.imgRelScale != null && card.imgFx != null && card.imgFy != null){
+          st.relScale = card.imgRelScale; st.fx = card.imgFx; st.fy = card.imgFy;
+          reflow();
         } else {
           fit();
         }
         if (!skipSave){
           card.image = url;
-          card.imgScale = st.scale; card.imgPosX = st.posX; card.imgPosY = st.posY;
+          card.imgRelScale = st.relScale; card.imgFx = st.fx; card.imgFy = st.fy;
           saveData();
         }
       };
@@ -2374,8 +2397,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function persistTransform(){
       if (!isAdmin) return;
+      syncRelFromAbsolute();
       const card = profileCard(cardIdx);
-      card.imgScale = st.scale; card.imgPosX = st.posX; card.imgPosY = st.posY;
+      card.imgRelScale = st.relScale; card.imgFx = st.fx; card.imgFy = st.fy;
       saveData();
     }
 
@@ -2431,7 +2455,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.addEventListener('resize', () => {
-    [0, 1].forEach(i => { if (profileImgState[i] && profileImgState[i].natW) profileImgState[i].fit(); });
+    [0, 1].forEach(i => { if (profileImgState[i] && profileImgState[i].natW) profileImgState[i].reflow(); });
   });
 
   /* ---- 명대사 ---- */
