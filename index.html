@@ -2341,7 +2341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     viewport.addEventListener('wheel', (e) => {
-      if (!st.natW) return;
+      if (!st.natW || !isAdmin) return;
       e.preventDefault();
       const rect = viewport.getBoundingClientRect();
       const mx = e.clientX - rect.left, my = e.clientY - rect.top;
@@ -2356,7 +2356,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive:false });
 
     viewport.addEventListener('mousedown', (e) => {
-      if (!st.natW) return;
+      if (!st.natW || !isAdmin) return;
       st.dragging = true; st.sx = e.clientX; st.sy = e.clientY; st.spx = st.posX; st.spy = st.posY;
     });
     window.addEventListener('mousemove', (e) => {
@@ -2367,7 +2367,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     window.addEventListener('mouseup', () => { st.dragging = false; });
     viewport.addEventListener('touchstart', (e) => {
-      if (!st.natW || e.touches.length !== 1) return;
+      if (!st.natW || !isAdmin || e.touches.length !== 1) return;
       st.dragging = true; st.sx = e.touches[0].clientX; st.sy = e.touches[0].clientY; st.spx = st.posX; st.spy = st.posY;
     }, { passive:true });
     viewport.addEventListener('touchmove', (e) => {
