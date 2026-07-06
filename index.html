@@ -31,7 +31,10 @@ html,body{
   font-family:var(--font-mono);
   font-size:14px;
   -webkit-font-smoothing:none;
+  scrollbar-width:none;      /* firefox */
+  -ms-overflow-style:none;   /* legacy edge/ie */
 }
+html::-webkit-scrollbar, body::-webkit-scrollbar{ display:none; }  /* chrome/safari */
 
 body{
   display:flex;
@@ -121,10 +124,10 @@ img{ -webkit-user-drag:none; user-select:none; }
   padding:26px 30px 20px;
   height:560px;
   overflow-y:auto;
+  scrollbar-width:none;      /* firefox */
+  -ms-overflow-style:none;   /* legacy edge/ie */
 }
-.content::-webkit-scrollbar{ width:10px; }
-.content::-webkit-scrollbar-track{ background:var(--panel-2); }
-.content::-webkit-scrollbar-thumb{ background:var(--orange-dim); }
+.content::-webkit-scrollbar{ display:none; }  /* chrome/safari */
 
 .pane{ display:none; }
 .pane.active{ display:block; animation:fadein .15s ease; }
@@ -279,7 +282,10 @@ p.dim{ color:var(--text-dim); }
   min-height:140px; max-height:300px; overflow-y:auto;
   background:#1a0d00; border:1px solid var(--orange-dim); color:var(--text);
   padding:10px; font-family:var(--font-mono); font-size:13px; line-height:1.6; margin-bottom:14px;
+  scrollbar-width:none;      /* firefox */
+  -ms-overflow-style:none;   /* legacy edge/ie */
 }
+.rte-editor::-webkit-scrollbar{ display:none; }  /* chrome/safari */
 .rte-editor:focus{ outline:none; border-color:var(--orange); }
 .rte-html-textarea{ display:none; }
 .log-secret-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:14px; font-size:12px; }
@@ -533,7 +539,10 @@ p.dim{ color:var(--text-dim); }
   width:min(440px, 100%); background:var(--panel); border:2px solid var(--orange);
   padding:22px; box-shadow:0 0 40px -8px rgba(255,35,35,.4);
   max-height:86vh; overflow-y:auto;
+  scrollbar-width:none;      /* firefox */
+  -ms-overflow-style:none;   /* legacy edge/ie */
 }
+.modal-box::-webkit-scrollbar{ display:none; }  /* chrome/safari */
 .modal-box.modal-box-wide{ width:min(680px, 100%); }
 .modal-title{ font-family:var(--font-pixel); color:var(--orange); font-size:14px; margin:0 0 14px; letter-spacing:1px; }
 .modal-hint{ font-size:12px; color:var(--text-dim); margin:0 0 12px; line-height:1.6; }
