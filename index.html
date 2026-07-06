@@ -421,7 +421,7 @@ p.dim{ color:var(--text-dim); }
 .profile-section-order-btns{ display:flex; gap:4px; }
 .profile-section-order-btns .mini-btn{ padding:2px 8px; font-size:10px; }
 
-.profile-viewport{ height:220px; }
+.image-viewport.profile-viewport{ height:220px; }
 
 .profile-quote{
   font-style:italic; color:var(--orange-2); border-left:2px solid var(--orange-dim);
@@ -2347,6 +2347,7 @@ document.addEventListener('DOMContentLoaded', () => {
       applyTransform();
     }
     st.fit = fit;
+    st.reflow = fit;
 
     function load(url, skipSave){
       img.onload = () => {
@@ -2431,7 +2432,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.addEventListener('resize', () => {
-    [0, 1].forEach(i => { if (profileImgState[i] && profileImgState[i].natW) profileImgState[i].fit(); });
+    [0, 1].forEach(i => { if (profileImgState[i] && profileImgState[i].natW) profileImgState[i].reflow(); });
   });
 
   /* ---- 명대사 ---- */
