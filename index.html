@@ -2916,6 +2916,36 @@ document.addEventListener('DOMContentLoaded', () => {
   if (gistSaveBtn) gistSaveBtn.addEventListener('click', () => { saveGistCreds(); saveToGist(true); });
   if (gistLoadBtn) gistLoadBtn.addEventListener('click', () => { saveGistCreds(); loadFromGist(); });
 
+  /* ---- 방문자용 자동 불러오기: 관리자가 아닌 일반 방문자는 접속 시 공개 Gist 데이터를 자동으로 불러와 렌더링 ----
+     (관리자 본인 브라우저에서는 편집 중 새로고침 시 아직 백업 안 된 최신 로컬 수정사항이 덮어써지는 것을 막기 위해
+      자동 불러오기를 건너뛰고, 기존처럼 수동 [Gist에서 불러오기] 버튼을 사용합니다.) */
+  async function publicAutoLoad(){
+    try{
+      const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(DEFAULT_GIST_ID)}`, {
+        headers: { 'Accept': 'application/vnd.github+json' }
+      });
+      if (!res.ok) return; // 실패 시 조용히 기본/로컬 데이터 유지
+      const json = await res.json();
+      const file = json.files && json.files[GIST_FILENAME];
+      if (!file) return;
+      let content = file.content;
+      if (file.truncated && file.raw_url){
+        const rawRes = await fetch(file.raw_url);
+        if (!rawRes.ok) return;
+        content = await rawRes.text();
+      }
+      const parsed = JSON.parse(content);
+      data = Object.assign(deepClone(DEFAULT_DATA), parsed);
+      migrateStoryData();
+      renderHome();
+      renderLogCats(); renderLogList();
+      renderMemoGrid();
+      renderStoryLineTabs(); renderStoryTimeline();
+      renderProfile();
+      renderGalleryGrid();
+    }catch(e){ /* 네트워크 오류 등 - 조용히 무시하고 기본/로컬 데이터로 계속 표시 */ }
+  }
+
   /* ---- 자동 백업: 관리자 로그인 상태에서 편집(saveData 호출) 시 1.8초 디바운스 ---- */
   let gistAutoBackupTimer = null;
   function scheduleGistAutoBackup(){
@@ -2948,6 +2978,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderGalleryGrid();
   applyAdminUI();
   checkPostShareParam();
+
+  // 일반 방문자는 접속 시 공개 Gist의 최신 데이터를 자동으로 불러옵니다.
+  // 관리자 로그인 상태에서는 편집 중 자동 백업 지연으로 최신 로컬 수정사항이 덮어써질 수 있어 건너뜁니다.
+  if (!isAdmin) publicAutoLoad();
 });
 </script>
 </body>
