@@ -603,7 +603,7 @@ body.crt-off .crt-scanlines, body.crt-off .crt-vignette, body.crt-off .crt-flick
 
   <!-- 타이틀 바 -->
   <header class="titlebar">
-    <span class="titlebar-path" contenteditable="true" spellcheck="false">K:\HOME\<span class="blink">____</span>PERSONAL.exe</span>
+    <span class="titlebar-path" id="titlebarPath" contenteditable="false" spellcheck="false">K:\HOME\<span class="blink">____</span>PERSONAL.exe</span>
     <div class="titlebar-buttons">
       <button id="crtToggle" class="tbtn tbtn-accent">[ON]</button>
       <button class="tbtn">◀ BACK</button>
@@ -788,6 +788,9 @@ body.crt-off .crt-scanlines, body.crt-off .crt-vignette, body.crt-off .crt-flick
       <span class="sep">|</span>
       <span id="adminLoginBtn" class="admin-toggle">[관리자 로그인]</span>
       <span id="adminLogoutBtn" class="admin-toggle hidden">[관리자 모드 · 로그아웃]</span>
+      <span class="sep admin-only" data-admin-display="inline"></span>
+      <span id="footerSyncSaveBtn" class="admin-toggle admin-only" data-admin-display="inline-block">[동기화:저장]</span>
+      <span id="footerSyncLoadBtn" class="admin-toggle admin-only" data-admin-display="inline-block">[동기화:불러오기]</span>
       <span class="sep">|</span>
       <span id="currentTab" class="current-tab">HOME</span>
     </div>
@@ -833,6 +836,9 @@ document.addEventListener('DOMContentLoaded', () => {
       bg: '',
       name: '이름 / 닉네임',
       image: '',
+      imgScale: null,
+      imgPosX: null,
+      imgPosY: null,
       quote: '',
       tableLabelWidth: 76,
       table: [
@@ -852,6 +858,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const DEFAULT_DATA = {
     adminPw: '0000',
+    windowTitle: '',
     home: {
       cover: '',
       avatar: '',
@@ -1129,6 +1136,21 @@ document.addEventListener('DOMContentLoaded', () => {
   ============================================================ */
   const adminLoginBtn  = document.getElementById('adminLoginBtn');
   const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+  const titlebarPath   = document.getElementById('titlebarPath');
+  if (titlebarPath){
+    if (data.windowTitle) titlebarPath.textContent = data.windowTitle;
+    titlebarPath.addEventListener('blur', () => {
+      if (!isAdmin) return;
+      const val = titlebarPath.textContent.trim();
+      if (val){
+        data.windowTitle = val;
+        saveData();
+      }
+    });
+    titlebarPath.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter'){ e.preventDefault(); titlebarPath.blur(); }
+    });
+  }
 
   function eyeIconSVG(open){
     return open
@@ -1207,6 +1229,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (homeTitle) homeTitle.contentEditable = 'false';
       if (homeTitleEditBtn) homeTitleEditBtn.textContent = '제목 편집';
     }
+    if (titlebarPath) titlebarPath.contentEditable = isAdmin ? 'true' : 'false';
 
     renderLogCats();
     renderLogList();
@@ -2322,13 +2345,30 @@ document.addEventListener('DOMContentLoaded', () => {
         img.style.display = 'block';
         placeholder.style.display = 'none';
         viewport.classList.add('has-image');
-        fit();
-        if (!skipSave){ profileCard(cardIdx).image = url; saveData(); }
+        const card = profileCard(cardIdx);
+        if (skipSave && card.imgScale != null && card.imgPosX != null && card.imgPosY != null){
+          st.scale = card.imgScale; st.posX = card.imgPosX; st.posY = card.imgPosY;
+          applyTransform();
+        } else {
+          fit();
+        }
+        if (!skipSave){
+          card.image = url;
+          card.imgScale = st.scale; card.imgPosX = st.posX; card.imgPosY = st.posY;
+          saveData();
+        }
       };
       img.onerror = () => { if (!skipSave) alert('이미지를 불러올 수 없습니다. 링크를 다시 확인해주세요.'); };
       img.src = url;
     }
     profileImgLoaders[cardIdx] = load;
+
+    function persistTransform(){
+      if (!isAdmin) return;
+      const card = profileCard(cardIdx);
+      card.imgScale = st.scale; card.imgPosX = st.posX; card.imgPosY = st.posY;
+      saveData();
+    }
 
     placeholder.addEventListener('click', () => {
       if (!isAdmin) return;
@@ -2354,6 +2394,7 @@ document.addEventListener('DOMContentLoaded', () => {
       st.posY = my - (my - st.posY) * (newScale / st.scale);
       st.scale = newScale;
       applyTransform();
+      persistTransform();
     }, { passive:false });
 
     viewport.addEventListener('mousedown', (e) => {
@@ -2366,7 +2407,7 @@ document.addEventListener('DOMContentLoaded', () => {
       st.posY = st.spy + (e.clientY - st.sy);
       applyTransform();
     });
-    window.addEventListener('mouseup', () => { st.dragging = false; });
+    window.addEventListener('mouseup', () => { if (st.dragging){ st.dragging = false; persistTransform(); } });
     viewport.addEventListener('touchstart', (e) => {
       if (!st.natW || !isAdmin || e.touches.length !== 1) return;
       st.dragging = true; st.sx = e.touches[0].clientX; st.sy = e.touches[0].clientY; st.spx = st.posX; st.spy = st.posY;
@@ -2377,7 +2418,7 @@ document.addEventListener('DOMContentLoaded', () => {
       st.posY = st.spy + (e.touches[0].clientY - st.sy);
       applyTransform();
     }, { passive:true });
-    viewport.addEventListener('touchend', () => { st.dragging = false; });
+    viewport.addEventListener('touchend', () => { if (st.dragging){ st.dragging = false; persistTransform(); } });
   }
 
   window.addEventListener('resize', () => {
