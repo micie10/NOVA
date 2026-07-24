@@ -991,6 +991,17 @@ document.addEventListener('DOMContentLoaded', () => {
       '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
     }[s]));
   }
+  // 로그 본문(HTML 모드로 직접 입력한 내용)에 <style>/<script>/<link> 태그나
+  // on* 이벤트 속성이 섞여 있으면 페이지 전체 배경/레이아웃이 깨지거나
+  // 스크립트가 실행될 수 있어 렌더링 전에 제거한다.
+  function stripUnsafeTags(html){
+    return String(html == null ? '' : html)
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<link\b[^>]*>/gi, '')
+      .replace(/<meta\b[^>]*>/gi, '')
+      .replace(/\son[a-z]+\s*=\s*(".*?"|'.*?'|[^\s>]+)/gi, '');
+  }
   function uid(){ return 'id' + Math.random().toString(36).slice(2, 9); }
   function todayIso(){ return new Date().toISOString().slice(0, 10); }
   function todayDot(){ return todayIso().replace(/-/g, '.'); }
@@ -1802,7 +1813,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </label>
           <button type="button" class="mini-btn" id="rteHtmlToggle">HTML 모드</button>
         </div>
-        <div id="logFormEditor" class="rte-editor" contenteditable="true">${existing ? existing.body : ''}</div>
+        <div id="logFormEditor" class="rte-editor" contenteditable="true">${existing ? stripUnsafeTags(existing.body) : ''}</div>
         <textarea id="logFormHtml" class="modal-input modal-textarea rte-html-textarea" rows="6" placeholder="HTML 직접 입력"></textarea>
 
         <textarea id="logFormImages" class="modal-input modal-textarea" rows="3" placeholder="이미지 URL (줄바꿈으로 구분)">${existing && existing.images ? existing.images.join('\n') : ''}</textarea>
@@ -1822,7 +1833,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const title = document.getElementById('logFormTitle').value.trim();
             const editor = document.getElementById('logFormEditor');
             const htmlTextarea = document.getElementById('logFormHtml');
-            const body = (editor.dataset.mode === 'html' ? htmlTextarea.value : editor.innerHTML).trim();
+            const body = stripUnsafeTags((editor.dataset.mode === 'html' ? htmlTextarea.value : editor.innerHTML).trim());
             const images = document.getElementById('logFormImages').value.split('\n').map(s => s.trim()).filter(Boolean);
             const secretOn = document.getElementById('logFormSecret').checked;
             const secretPw = document.getElementById('logFormSecretPw').value.trim();
@@ -1881,7 +1892,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span>${escapeHtml(log.date)}</span>
           <span>#${escapeHtml(log.category)}</span>
         </div>
-        <div class="log-detail-body">${log.body}</div>
+        <div class="log-detail-body">${stripUnsafeTags(log.body)}</div>
         <div class="log-detail-share">
           <button class="mini-btn" data-action="share-copy" data-id="${log.id}" type="button">🔗 링크 복사</button>
           <button class="mini-btn" data-action="share-native" data-id="${log.id}" type="button">공유하기</button>
