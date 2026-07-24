@@ -1002,6 +1002,53 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/<meta\b[^>]*>/gi, '')
       .replace(/\son[a-z]+\s*=\s*(".*?"|'.*?'|[^\s>]+)/gi, '');
   }
+  // 붙여넣은 본문이 자체 <style>이 있는 완성된 HTML 문서(채팅 캡처 도구 등에서
+  // 내보낸 형식)인지 판별한다. 이런 글은 <style>을 지우면 레이아웃이 깨지므로
+  // 별도 처리(샌드박스 iframe)가 필요하다.
+  function looksLikeFullDocument(html){
+    return /<!DOCTYPE|<html[\s>]|<style[\s>]/i.test(String(html == null ? '' : html));
+  }
+  // 샌드박스 iframe 안에서만 쓰이므로 <style>/<link> 등은 그대로 두고,
+  // 실행 가능한 스크립트와 이벤트 핸들러만 제거한다.
+  function sanitizeEmbeddedHtml(html){
+    return String(html == null ? '' : html)
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/\son[a-z]+\s*=\s*(".*?"|'.*?'|[^\s>]+)/gi, '');
+  }
+  // 로그 본문을 렌더링한다. 일반 서식 글은 예전처럼 바로 삽입하고,
+  // <style>이 포함된 완성된 HTML 문서(예: 채팅 캡처 이미지 붙여넣기)는
+  // sandbox iframe에 격리해서 그 스타일이 사이트 전체로 새지 않게 한다.
+  function renderLogBody(container, rawHtml){
+    if (!container) return;
+    container.innerHTML = '';
+    const html = rawHtml == null ? '' : String(rawHtml);
+    if (!html.trim()) return;
+    if (!looksLikeFullDocument(html)){
+      container.innerHTML = stripUnsafeTags(html);
+      return;
+    }
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('sandbox', 'allow-same-origin');
+    iframe.setAttribute('title', 'log-embed');
+    iframe.style.cssText = 'display:block;width:100%;border:0;background:transparent;';
+    container.appendChild(iframe);
+    const applyHeight = () => {
+      try{
+        const doc = iframe.contentDocument;
+        const h = Math.max(
+          doc.documentElement ? doc.documentElement.scrollHeight : 0,
+          doc.body ? doc.body.scrollHeight : 0
+        );
+        if (h) iframe.style.height = h + 'px';
+      }catch(e){ /* 접근 불가 시 무시 */ }
+    };
+    iframe.addEventListener('load', () => {
+      applyHeight();
+      setTimeout(applyHeight, 250);
+      setTimeout(applyHeight, 900);
+    });
+    iframe.srcdoc = sanitizeEmbeddedHtml(html);
+  }
   function uid(){ return 'id' + Math.random().toString(36).slice(2, 9); }
   function todayIso(){ return new Date().toISOString().slice(0, 10); }
   function todayDot(){ return todayIso().replace(/-/g, '.'); }
@@ -1748,7 +1795,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const secretPwInput = document.getElementById('logFormSecretPw');
     if (!editor) return;
 
-    editor.dataset.mode = 'rich';
+    editor.dataset.mode = editor.dataset.initMode || 'rich';
 
     document.querySelectorAll('.rte-btn[data-cmd]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1790,6 +1837,9 @@ document.addEventListener('DOMContentLoaded', () => {
       `<option value="${t.value}" ${existing && existing.type === t.value ? 'selected' : ''}>${t.label}</option>`
     ).join('');
     const isSecretExisting = !!(existing && existing.secret && existing.secret.on);
+    // 자체 <style>이 있는 완성된 HTML 문서라면, 곧바로 편집기(contenteditable)에
+    // 밀어넣지 않고 HTML 모드 텍스트영역에 원본 그대로 띄워 스타일 유실/유출을 막는다.
+    const isFullDocExisting = !!(existing && looksLikeFullDocument(existing.body));
     openModal({
       title: existing ? '▓ 글 수정' : '▓ 새 글 작성',
       wide: true,
@@ -1811,10 +1861,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <label class="rte-color-label" title="형광펜 색상">
             <input type="color" id="rteHiliteColor" class="rte-color-input" value="#ff2323">
           </label>
-          <button type="button" class="mini-btn" id="rteHtmlToggle">HTML 모드</button>
+          <button type="button" class="mini-btn" id="rteHtmlToggle">${isFullDocExisting ? '에디터 모드' : 'HTML 모드'}</button>
         </div>
-        <div id="logFormEditor" class="rte-editor" contenteditable="true">${existing ? stripUnsafeTags(existing.body) : ''}</div>
-        <textarea id="logFormHtml" class="modal-input modal-textarea rte-html-textarea" rows="6" placeholder="HTML 직접 입력"></textarea>
+        <div id="logFormEditor" class="rte-editor" contenteditable="true" data-init-mode="${isFullDocExisting ? 'html' : 'rich'}" style="${isFullDocExisting ? 'display:none;' : ''}">${existing && !isFullDocExisting ? stripUnsafeTags(existing.body) : ''}</div>
+        <textarea id="logFormHtml" class="modal-input modal-textarea rte-html-textarea" rows="6" placeholder="HTML 직접 입력" style="${isFullDocExisting ? 'display:block;' : ''}">${isFullDocExisting ? escapeHtml(existing.body) : ''}</textarea>
 
         <textarea id="logFormImages" class="modal-input modal-textarea" rows="3" placeholder="이미지 URL (줄바꿈으로 구분)">${existing && existing.images ? existing.images.join('\n') : ''}</textarea>
 
@@ -1833,7 +1883,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const title = document.getElementById('logFormTitle').value.trim();
             const editor = document.getElementById('logFormEditor');
             const htmlTextarea = document.getElementById('logFormHtml');
-            const body = stripUnsafeTags((editor.dataset.mode === 'html' ? htmlTextarea.value : editor.innerHTML).trim());
+            const rawBody = (editor.dataset.mode === 'html' ? htmlTextarea.value : editor.innerHTML).trim();
+            // HTML 모드로 입력한 내용은 <style>이 포함된 완성된 문서일 수 있으므로
+            // (보기 화면에서 sandbox iframe에 격리되어 렌더링됨) 그대로 저장한다.
+            // 편집기(contenteditable)에서 편집한 서식 글만 위험한 태그를 제거한다.
+            const body = editor.dataset.mode === 'html' ? rawBody : stripUnsafeTags(rawBody);
             const images = document.getElementById('logFormImages').value.split('\n').map(s => s.trim()).filter(Boolean);
             const secretOn = document.getElementById('logFormSecret').checked;
             const secretPw = document.getElementById('logFormSecretPw').value.trim();
@@ -1892,7 +1946,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span>${escapeHtml(log.date)}</span>
           <span>#${escapeHtml(log.category)}</span>
         </div>
-        <div class="log-detail-body">${stripUnsafeTags(log.body)}</div>
+        <div class="log-detail-body" id="logDetailBody"></div>
         <div class="log-detail-share">
           <button class="mini-btn" data-action="share-copy" data-id="${log.id}" type="button">🔗 링크 복사</button>
           <button class="mini-btn" data-action="share-native" data-id="${log.id}" type="button">공유하기</button>
@@ -1903,6 +1957,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `,
       buttons: [ { label:'닫기', onClick: closeModal } ]
     });
+    renderLogBody(document.getElementById('logDetailBody'), log.body);
     const commentsWrap = document.getElementById('logDetailComments');
     if (commentsWrap) refreshAdminOnlyIn(commentsWrap);
   }
